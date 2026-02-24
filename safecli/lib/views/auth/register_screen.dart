@@ -1,0 +1,454 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import '../../controllers/auth_controller.dart';
+
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+  bool _agreeToTerms = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _register(BuildContext context) async {
+    final authController = Provider.of<AuthController>(context, listen: false);
+
+    if (!_agreeToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('يرجى الموافقة على الشروط والأحكام'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    if (_formKey.currentState!.validate()) {
+      final success = await authController.register(
+        _nameController.text.trim(),
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+
+      if (!success && authController.error != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(authController.error!),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final authController = context.watch<AuthController>();
+
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF4D82B8),
+              Color(0xFF0A4779),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 30),
+                  _buildRegisterCard(authController),
+                  const SizedBox(height: 20),
+                  _buildLoginLink(),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Column(
+      children: [
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.person_add_rounded,
+            size: 40,
+            color: Color(0xFF0A4779),
+          ),
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          'إنشاء حساب جديد',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          'انضم إلينا وابدأ رحلة الحماية',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.white.withOpacity(0.8),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRegisterCard(AuthController authController) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              _buildNameField(),
+              const SizedBox(height: 15),
+              _buildEmailField(),
+              const SizedBox(height: 15),
+              _buildPasswordField(),
+              const SizedBox(height: 15),
+              _buildConfirmPasswordField(),
+              const SizedBox(height: 15),
+              _buildTermsCheckbox(),
+              const SizedBox(height: 20),
+              _buildRegisterButton(authController),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNameField() {
+    return TextFormField(
+      controller: _nameController,
+      textDirection: TextDirection.rtl,
+      decoration: InputDecoration(
+        labelText: 'الاسم الكامل',
+        prefixIcon: const Icon(Icons.person, color: Color(0xFF0A4779)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF0A4779), width: 2),
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'يرجى إدخال الاسم';
+        }
+        if (value.length < 3) {
+          return 'الاسم يجب أن يكون 3 أحرف على الأقل';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildEmailField() {
+    return TextFormField(
+      controller: _emailController,
+      keyboardType: TextInputType.emailAddress,
+      textDirection: TextDirection.ltr,
+      decoration: InputDecoration(
+        labelText: 'البريد الإلكتروني',
+        prefixIcon: const Icon(Icons.email, color: Color(0xFF0A4779)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF0A4779), width: 2),
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'يرجى إدخال البريد الإلكتروني';
+        }
+        if (!value.contains('@') || !value.contains('.')) {
+          return 'البريد الإلكتروني غير صحيح';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return TextFormField(
+      controller: _passwordController,
+      obscureText: _obscurePassword,
+      textDirection: TextDirection.ltr,
+      decoration: InputDecoration(
+        labelText: 'كلمة المرور',
+        prefixIcon: const Icon(Icons.lock, color: Color(0xFF0A4779)),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscurePassword ? Icons.visibility_off : Icons.visibility,
+            color: Colors.grey,
+          ),
+          onPressed: () {
+            setState(() {
+              _obscurePassword = !_obscurePassword;
+            });
+          },
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF0A4779), width: 2),
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'يرجى إدخال كلمة المرور';
+        }
+        if (value.length < 6) {
+          return 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+        }
+        if (!value.contains(RegExp(r'[A-Za-z]')) || !value.contains(RegExp(r'[0-9]'))) {
+          return 'يجب أن تحتوي على أحرف وأرقام';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildConfirmPasswordField() {
+    return TextFormField(
+      controller: _confirmPasswordController,
+      obscureText: _obscureConfirmPassword,
+      textDirection: TextDirection.ltr,
+      decoration: InputDecoration(
+        labelText: 'تأكيد كلمة المرور',
+        prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF0A4779)),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+            color: Colors.grey,
+          ),
+          onPressed: () {
+            setState(() {
+              _obscureConfirmPassword = !_obscureConfirmPassword;
+            });
+          },
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF0A4779), width: 2),
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'يرجى تأكيد كلمة المرور';
+        }
+        if (value != _passwordController.text) {
+          return 'كلمة المرور غير متطابقة';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildTermsCheckbox() {
+    return Row(
+      children: [
+        Checkbox(
+          value: _agreeToTerms,
+          activeColor: const Color(0xFF0A4779),
+          onChanged: (value) {
+            setState(() {
+              _agreeToTerms = value ?? false;
+            });
+          },
+        ),
+        Expanded(
+          child: GestureDetector(
+            onTap: _showTermsDialog,
+            child: RichText(
+              text: TextSpan(
+                text: 'أوافق على ',
+                style: DefaultTextStyle.of(context).style,
+                children: const [
+                  TextSpan(
+                    text: 'الشروط والأحكام',
+                    style: TextStyle(
+                      color: Color(0xFF0A4779),
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRegisterButton(AuthController authController) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton(
+        onPressed: authController.isLoading ? null : () => _register(context),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF0A4779),
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 2,
+        ),
+        child: authController.isLoading
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : const Text(
+                'إنشاء حساب',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildLoginLink() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'لديك حساب بالفعل؟',
+          style: TextStyle(color: Colors.white.withOpacity(0.9)),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text(
+            'تسجيل الدخول',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showTermsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('الشروط والأحكام'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: const [
+              Text('1. استخدام التطبيق للمسؤولية الشخصية'),
+              SizedBox(height: 8),
+              Text('2. عدم استخدام التطبيق لأغراض غير قانونية'),
+              SizedBox(height: 8),
+              Text('3. احترام خصوصية الآخرين'),
+              SizedBox(height: 8),
+              Text('4. الإبلاغ عن الروابط الضارة بمسؤولية'),
+              SizedBox(height: 8),
+              Text('5. التطبيق لا يضمن حماية 100% من جميع المخاطر'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('موافق'),
+          ),
+        ],
+      ),
+    );
+  }
+}

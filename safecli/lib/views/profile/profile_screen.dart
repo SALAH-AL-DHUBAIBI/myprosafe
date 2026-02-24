@@ -21,161 +21,191 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final authController = context.watch<AuthController>();
     final profileController = context.watch<ProfileController>();
     final user = profileController.user;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      
+      backgroundColor: isDarkMode ? const Color(0xFF121212) : Colors.white,
       body: profileController.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  expandedHeight: 200,
-                  pinned: true,
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: _buildCoverImage(),
-                    title: Text(user.name),
-                    centerTitle: true,
-                  ),
-                  actions: [
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const EditProfileScreen(),
+          ? Center(
+              child: CircularProgressIndicator(
+                color: isDarkMode ? Colors.orange.shade300 : const Color(0xFF0A4779),
+              ),
+            )
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Header مع خلفية متدرجة
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(20, 30, 20, 70),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: isDarkMode
+                            ? [
+                                const Color(0xFF1A1A2E),
+                                const Color(0xFF16213E),
+                              ]
+                            : [
+                                const Color(0xFF0A4779),
+                                const Color(0xFF4D82B8),
+                              ],
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(30),
+                        bottomRight: Radius.circular(30),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: isDarkMode 
+                              ? Colors.black.withOpacity(0.3) 
+                              : Colors.black.withOpacity(0.1),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 10),
+                        // صورة المستخدم
+                        _buildProfileImage(user, profileController, isDarkMode),
+                        const SizedBox(height: 15),
+                        // اسم المستخدم
+                        Text(
+                          user.name,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
-                        );
-                      },
+                        ),
+                        const SizedBox(height: 5),
+                        // البريد الإلكتروني
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              user.email,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white.withOpacity(0.9),
+                              ),
+                            ),
+                            if (user.isEmailVerified)
+                              const Padding(
+                                padding: EdgeInsets.only(right: 4),
+                                child: Icon(
+                                  Icons.verified,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        // تاريخ الانضمام
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            'منضم منذ ${_formatJoinDate(user.createdAt)}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                SliverToBoxAdapter(
-                  child: Column(
-                    children: [
-                      _buildProfileHeader(context, user, profileController),
-                      const SizedBox(height: 20),
-                      ProfileStats(
-                        scannedLinks: user.scannedLinks,
-                        detectedThreats: user.detectedThreats,
-                        accuracyRate: user.accuracyRate,
-                      ),
-                      const SizedBox(height: 20),
-                      _buildProfileOptions(context, authController, profileController),
-                      if (profileController.error != null)
-                        _buildErrorWidget(profileController),
-                      const SizedBox(height: 20),
-                    ],
                   ),
-                ),
-              ],
+                  
+                  // المحتوى الرئيسي (يظهر فوق الخلفية)
+                  Transform.translate(
+                    offset: const Offset(0, -40),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        children: [
+                          // الإحصائيات
+                          ProfileStats(
+                            scannedLinks: user.scannedLinks,
+                            detectedThreats: user.detectedThreats,
+                            accuracyRate: user.accuracyRate,
+                          ),
+                          
+                          const SizedBox(height: 20),
+                          
+                          // خيارات الملف الشخصي
+                          _buildProfileOptions(context, authController, profileController, isDarkMode),
+                          
+                          if (profileController.error != null)
+                            _buildErrorWidget(profileController, isDarkMode),
+                          
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
     );
   }
 
-  Widget _buildCoverImage() {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF0A4779),
-            Color(0xFF4D82B8),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfileHeader(BuildContext context, user, ProfileController profileController) {
-    return Transform.translate(
-      offset: const Offset(0, -50),
-      child: Column(
+  Widget _buildProfileImage(user, ProfileController profileController, bool isDarkMode) {
+    return GestureDetector(
+      onTap: () => _showImageOptions(context, profileController, isDarkMode),
+      child: Stack(
+        alignment: Alignment.bottomRight,
         children: [
-          GestureDetector(
-            onTap: () => _showImageOptions(context, profileController),
-            child: Stack(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 4),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: CircleAvatar(
-                    radius: 60,
-                    backgroundImage: _getProfileImage(user),
-                    backgroundColor: Colors.grey.shade200,
-                    child: _isLoadingImage
-                        ? const CircularProgressIndicator()
-                        : null,
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF0A4779),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.camera_alt,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
+          // الصورة مع حدود
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white,
+                width: 4,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            user.name,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+            child: CircleAvatar(
+              radius: 60,
+              backgroundImage: _getProfileImage(user),
+              backgroundColor: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200,
+              child: _isLoadingImage
+                  ? CircularProgressIndicator(
+                      color: isDarkMode ? Colors.orange.shade300 : Colors.white,
+                    )
+                  : null,
             ),
           ),
-          const SizedBox(height: 5),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                user.email,
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-              if (user.isEmailVerified)
-                const Padding(
-                  padding: EdgeInsets.only(right: 4),
-                  child: Icon(
-                    Icons.verified,
-                    color: Colors.green,
-                    size: 16,
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 5),
+          // أيقونة الكاميرا
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              'منضم منذ ${_formatJoinDate(user.createdAt)}',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.blue.shade700,
+              color: isDarkMode ? Colors.orange.shade700 : const Color(0xFF0A4779),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white,
+                width: 2,
               ),
+            ),
+            child: const Icon(
+              Icons.camera_alt,
+              color: Colors.white,
+              size: 20,
             ),
           ),
         ],
@@ -187,15 +217,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     BuildContext context,
     AuthController authController,
     ProfileController profileController,
+    bool isDarkMode,
   ) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDarkMode ? const Color(0xFF2A2A3A) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: isDarkMode 
+                ? Colors.black.withOpacity(0.3) 
+                : Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -205,8 +237,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           _buildOptionTile(
             icon: Icons.edit,
-            iconColor: Colors.blue,
+            iconColor: isDarkMode ? Colors.blue.shade300 : Colors.blue,
             title: 'تعديل الملف الشخصي',
+            titleColor: isDarkMode ? Colors.white : Colors.black87,
             onTap: () {
               Navigator.push(
                 context,
@@ -215,45 +248,76 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               );
             },
+            isDarkMode: isDarkMode,
           ),
+          _buildDivider(isDarkMode),
           _buildOptionTile(
             icon: Icons.security,
-            iconColor: Colors.green,
+            iconColor: isDarkMode ? Colors.green.shade300 : Colors.green,
             title: 'الأمان والخصوصية',
+            titleColor: isDarkMode ? Colors.white : Colors.black87,
             onTap: () {},
+            isDarkMode: isDarkMode,
           ),
+          _buildDivider(isDarkMode),
           _buildOptionTile(
             icon: Icons.notifications,
-            iconColor: Colors.orange,
+            iconColor: isDarkMode ? Colors.orange.shade300 : Colors.orange,
             title: 'الإشعارات',
+            titleColor: isDarkMode ? Colors.white : Colors.black87,
             trailing: Switch(
               value: true,
               onChanged: (value) {},
-              activeColor: const Color(0xFF0A4779),
+              activeColor: isDarkMode ? Colors.orange.shade300 : const Color(0xFF0A4779),
+              activeTrackColor: isDarkMode ? Colors.orange.shade700 : const Color(0xFF4D82B8),
             ),
+            isDarkMode: isDarkMode,
           ),
+          _buildDivider(isDarkMode),
           _buildOptionTile(
             icon: Icons.language,
-            iconColor: Colors.purple,
+            iconColor: isDarkMode ? Colors.purple.shade300 : Colors.purple,
             title: 'اللغة',
-            trailing: const Text('العربية'),
+            titleColor: isDarkMode ? Colors.white : Colors.black87,
+            trailing: Text(
+              'العربية',
+              style: TextStyle(
+                color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,
+              ),
+            ),
             onTap: () {},
+            isDarkMode: isDarkMode,
           ),
+          _buildDivider(isDarkMode),
           _buildOptionTile(
             icon: Icons.help_outline,
-            iconColor: Colors.teal,
+            iconColor: isDarkMode ? Colors.teal.shade300 : Colors.teal,
             title: 'المساعدة والدعم',
+            titleColor: isDarkMode ? Colors.white : Colors.black87,
             onTap: () {},
+            isDarkMode: isDarkMode,
           ),
+          _buildDivider(isDarkMode),
           _buildOptionTile(
             icon: Icons.logout,
-            iconColor: Colors.red,
+            iconColor: isDarkMode ? Colors.red.shade300 : Colors.red,
             title: 'تسجيل الخروج',
-            titleColor: Colors.red,
-            onTap: () => _showLogoutDialog(context, authController),
+            titleColor: isDarkMode ? Colors.red.shade300 : Colors.red,
+            onTap: () => _showLogoutDialog(context, authController, isDarkMode),
+            isDarkMode: isDarkMode,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDivider(bool isDarkMode) {
+    return Divider(
+      height: 1,
+      thickness: 1,
+      indent: 60,
+      endIndent: 16,
+      color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200,
     );
   }
 
@@ -264,6 +328,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Color? titleColor,
     Widget? trailing,
     VoidCallback? onTap,
+    required bool isDarkMode,
   }) {
     return ListTile(
       leading: Container(
@@ -277,36 +342,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
       title: Text(
         title,
         style: TextStyle(
-          color: titleColor ?? Colors.black87,
+          color: titleColor ?? (isDarkMode ? Colors.white : Colors.black87),
           fontWeight: FontWeight.w500,
         ),
       ),
-      trailing: trailing ?? const Icon(Icons.arrow_forward_ios, size: 16),
+      trailing: trailing ?? Icon(
+        Icons.arrow_forward_ios, 
+        size: 16,
+        color: isDarkMode ? Colors.grey.shade500 : Colors.grey.shade600,
+      ),
       onTap: onTap,
     );
   }
 
-  Widget _buildErrorWidget(ProfileController profileController) {
+  Widget _buildErrorWidget(ProfileController profileController, bool isDarkMode) {
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.red.withOpacity(0.1),
+        color: isDarkMode ? Colors.red.shade900.withOpacity(0.2) : Colors.red.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.red.withOpacity(0.3)),
+        border: Border.all(
+          color: isDarkMode ? Colors.red.shade700.withOpacity(0.3) : Colors.red.withOpacity(0.3),
+        ),
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: Colors.red),
+          Icon(
+            Icons.error_outline,
+            color: isDarkMode ? Colors.red.shade300 : Colors.red,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               profileController.error!,
-              style: const TextStyle(color: Colors.red),
+              style: TextStyle(
+                color: isDarkMode ? Colors.red.shade300 : Colors.red,
+              ),
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.close, size: 20),
+            icon: Icon(
+              Icons.close,
+              size: 20,
+              color: isDarkMode ? Colors.grey.shade500 : Colors.grey.shade600,
+            ),
             onPressed: profileController.clearError,
           ),
         ],
@@ -325,9 +405,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return const AssetImage('assets/images/default_profile.png');
   }
 
-  void _showImageOptions(BuildContext context, ProfileController profileController) {
+  void _showImageOptions(BuildContext context, ProfileController profileController, bool isDarkMode) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: isDarkMode ? const Color(0xFF2A2A3A) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -336,9 +417,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
+            Text(
               'تغيير الصورة الشخصية',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: isDarkMode ? Colors.white : Colors.black87,
+              ),
             ),
             const SizedBox(height: 20),
             ListTile(
@@ -348,9 +433,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: Colors.blue.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.photo_library, color: Colors.blue),
+                child: Icon(
+                  Icons.photo_library,
+                  color: isDarkMode ? Colors.blue.shade300 : Colors.blue,
+                ),
               ),
-              title: const Text('اختر من المعرض'),
+              title: Text(
+                'اختر من المعرض',
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
+              ),
               onTap: () async {
                 Navigator.pop(context);
                 setState(() => _isLoadingImage = true);
@@ -369,9 +462,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: Colors.orange.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.camera_alt, color: Colors.orange),
+                child: Icon(
+                  Icons.camera_alt,
+                  color: isDarkMode ? Colors.orange.shade300 : Colors.orange,
+                ),
               ),
-              title: const Text('التقاط صورة'),
+              title: Text(
+                'التقاط صورة',
+                style: TextStyle(
+                  color: isDarkMode ? Colors.white : Colors.black87,
+                ),
+              ),
               onTap: () async {
                 Navigator.pop(context);
                 setState(() => _isLoadingImage = true);
@@ -392,11 +493,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: Colors.red.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.delete, color: Colors.red),
+                  child: Icon(
+                    Icons.delete,
+                    color: isDarkMode ? Colors.red.shade300 : Colors.red,
+                  ),
                 ),
-                title: const Text(
+                title: Text(
                   'حذف الصورة',
-                  style: TextStyle(color: Colors.red),
+                  style: TextStyle(
+                    color: isDarkMode ? Colors.red.shade300 : Colors.red,
+                  ),
                 ),
                 onTap: () {
                   Navigator.pop(context);
@@ -409,16 +515,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showLogoutDialog(BuildContext context, AuthController authController) {
+  void _showLogoutDialog(BuildContext context, AuthController authController, bool isDarkMode) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('تسجيل الخروج'),
-        content: const Text('هل أنت متأكد من أنك تريد تسجيل الخروج؟'),
+        backgroundColor: isDarkMode ? const Color(0xFF2A2A3A) : Colors.white,
+        title: Text(
+          'تسجيل الخروج',
+          style: TextStyle(
+            color: isDarkMode ? Colors.white : Colors.black87,
+          ),
+        ),
+        content: Text(
+          'هل أنت متأكد من أنك تريد تسجيل الخروج؟',
+          style: TextStyle(
+            color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
+            child: Text(
+              'إلغاء',
+              style: TextStyle(
+                color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade700,
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -428,7 +550,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: isDarkMode ? Colors.red.shade800 : Colors.red,
               foregroundColor: Colors.white,
             ),
             child: const Text('تسجيل الخروج'),

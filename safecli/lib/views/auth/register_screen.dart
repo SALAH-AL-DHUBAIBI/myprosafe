@@ -342,26 +342,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
           },
         ),
         Expanded(
-          child: GestureDetector(
-            onTap: _showTermsDialog,
-            child: RichText(
-              text: TextSpan(
-                text: 'أوافق على ',
-                style: DefaultTextStyle.of(context).style,
-                children: const [
-                  TextSpan(
-                    text: 'الشروط والأحكام',
-                    style: TextStyle(
-                      color: Color(0xFF0A4779),
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ],
+  child: GestureDetector(
+    onTap: _showTermsDialog,
+    child: Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0A4779).withOpacity(0.05),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: RichText(
+        text: TextSpan(
+          text: 'أوافق على ',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey.shade700,
+            fontFamily: 'Tajawal', // إذا كنت تستخدم خط Tajawal
+          ),
+          children: const [
+            TextSpan(
+              text: 'الشروط والأحكام',
+              style: TextStyle(
+                color: Color(0xFF0A4779),
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+                fontSize: 14,
               ),
             ),
-          ),
+          ],
         ),
+      ),
+    ),
+  ),
+),
       ],
     );
   }

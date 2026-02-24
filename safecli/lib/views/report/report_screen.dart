@@ -57,31 +57,37 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     final reportController = context.watch<ReportController>();
     final authController = context.watch<AuthController>();
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-     
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Colors.orange.shade50,
-              Colors.white,
-            ],
+            colors: isDarkMode
+                ? [
+                    const Color(0xFF1A1A2E),
+                    const Color(0xFF16213E),
+                  ]
+                : [
+                    Colors.orange.shade50,
+                    Colors.white,
+                  ],
           ),
         ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              _buildHeader(),
+              _buildHeader(isDarkMode),
               const SizedBox(height: 20),
-              _buildForm(reportController, authController),
+              _buildForm(reportController, authController, isDarkMode),
               const SizedBox(height: 20),
-              _buildGuidelines(),
+              _buildGuidelines(isDarkMode),
               const SizedBox(height: 20),
-              if (reportController.lastError != null) _buildErrorWidget(reportController),
+              if (reportController.lastError != null) 
+                _buildErrorWidget(reportController, isDarkMode),
             ],
           ),
         ),
@@ -89,15 +95,17 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isDarkMode) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.orange.shade700,
+        color: isDarkMode 
+            ? Colors.orange.shade900.withOpacity(0.8)
+            : Colors.orange.shade700,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.orange.shade700.withOpacity(0.3),
+            color: (isDarkMode ? Colors.orange.shade900 : Colors.orange.shade700).withOpacity(0.3),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -146,33 +154,34 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildForm(ReportController reportController, AuthController authController) {
+  Widget _buildForm(ReportController reportController, AuthController authController, bool isDarkMode) {
     return Card(
       elevation: 4,
+      color: isDarkMode ? const Color(0xFF2A2A3A) : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'تفاصيل البلاغ',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF0A4779),
+                color: isDarkMode ? Colors.orange.shade300 : const Color(0xFF0A4779),
               ),
             ),
             const SizedBox(height: 20),
-            _buildLinkField(),
+            _buildLinkField(isDarkMode),
             const SizedBox(height: 20),
-            _buildCategoryField(),
+            _buildCategoryField(isDarkMode),
             const SizedBox(height: 20),
             _buildSeverityField(),
             const SizedBox(height: 20),
-            _buildDescriptionField(),
-            const SizedBox(height: 20),
-            _buildAnonymousOption(),
+            _buildDescriptionField(isDarkMode),
+            // const SizedBox(height: 20),
+            // _buildAnonymousOption(isDarkMode),
             const SizedBox(height: 30),
             _buildSubmitButton(reportController, authController),
           ],
@@ -181,28 +190,37 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildLinkField() {
+  Widget _buildLinkField(bool isDarkMode) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'الرابط المشبوه *',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+          ),
         ),
         const SizedBox(height: 8),
         TextField(
           controller: _linkController,
+          style: TextStyle(
+            color: isDarkMode ? Colors.white : Colors.black87,
+          ),
           decoration: InputDecoration(
             hintText: 'https://example.com',
+            hintStyle: TextStyle(
+              color: isDarkMode ? Colors.grey.shade500 : Colors.grey.shade600,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
             ),
             filled: true,
-            fillColor: Colors.grey.shade50,
-            prefixIcon: const Icon(Icons.link, color: Colors.orange),
+            fillColor: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade50,
+            prefixIcon: Icon(Icons.link, color: isDarkMode ? Colors.orange.shade300 : Colors.orange),
             suffixIcon: IconButton(
-              icon: const Icon(Icons.clear),
+              icon: Icon(Icons.clear, color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600),
               onPressed: () => _linkController.clear(),
             ),
           ),
@@ -212,27 +230,39 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildCategoryField() {
+  Widget _buildCategoryField(bool isDarkMode) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'نوع التهديد *',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+          ),
         ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: Colors.grey.shade50,
+            color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade50,
             borderRadius: BorderRadius.circular(12),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: _selectedCategory,
-              hint: const Text('اختر نوع التهديد'),
+              hint: Text(
+                'اختر نوع التهديد',
+                style: TextStyle(
+                  color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,
+                ),
+              ),
               isExpanded: true,
-              icon: const Icon(Icons.arrow_drop_down, color: Colors.orange),
+              icon: Icon(Icons.arrow_drop_down, color: isDarkMode ? Colors.orange.shade300 : Colors.orange),
+              dropdownColor: isDarkMode ? const Color(0xFF2A2A3A) : Colors.white,
+              style: TextStyle(
+                color: isDarkMode ? Colors.white : Colors.black87,
+              ),
               items: _categories.map((category) {
                 return DropdownMenuItem(
                   value: category,
@@ -314,27 +344,36 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildDescriptionField() {
+  Widget _buildDescriptionField(bool isDarkMode) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'وصف إضافي (اختياري)',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+          ),
         ),
         const SizedBox(height: 8),
         TextField(
           controller: _descriptionController,
           maxLines: 4,
           maxLength: 500,
+          style: TextStyle(
+            color: isDarkMode ? Colors.white : Colors.black87,
+          ),
           decoration: InputDecoration(
             hintText: 'أضف أي تفاصيل إضافية عن الرابط...',
+            hintStyle: TextStyle(
+              color: isDarkMode ? Colors.grey.shade500 : Colors.grey.shade600,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
             ),
             filled: true,
-            fillColor: Colors.grey.shade50,
+            fillColor: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade50,
             alignLabelWithHint: true,
           ),
         ),
@@ -342,19 +381,28 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildAnonymousOption() {
-    return Row(
-      children: [
-        Checkbox(
-          value: false,
-          onChanged: (value) {
-            // يمكن إضافة خيار الإبلاغ المجهول
-          },
-        ),
-        const Text('الإبلاغ بشكل مجهول'),
-      ],
-    );
-  }
+  // Widget _buildAnonymousOption(bool isDarkMode) {
+  //   return Row(
+  //     children: [
+  //       Checkbox(
+  //         value: false,
+  //         onChanged: (value) {},
+  //         fillColor: WidgetStateProperty.resolveWith<Color>((states) {
+  //           if (states.contains(WidgetState.selected)) {
+  //             return isDarkMode ? Colors.orange.shade300 : Colors.orange;
+  //           }
+  //           return isDarkMode ? Colors.grey.shade600 : Colors.grey.shade400;
+  //         }),
+  //       ),
+  //       Text(
+  //         'الإبلاغ بشكل مجهول',
+  //         style: TextStyle(
+  //           color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildSubmitButton(ReportController reportController, AuthController authController) {
     return SizedBox(
@@ -390,73 +438,103 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildGuidelines() {
+  Widget _buildGuidelines(bool isDarkMode) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        color: isDarkMode 
+            ? Colors.blue.shade900.withOpacity(0.2)
+            : Colors.blue.shade50,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue.shade200),
+        border: Border.all(
+          color: isDarkMode ? Colors.blue.shade700.withOpacity(0.3) : Colors.blue.shade200,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.info, color: Colors.blue.shade700),
+              Icon(
+                Icons.info,
+                color: isDarkMode ? Colors.blue.shade300 : Colors.blue.shade700,
+              ),
               const SizedBox(width: 8),
               Text(
                 'إرشادات الإبلاغ',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.blue.shade700,
+                  color: isDarkMode ? Colors.blue.shade300 : Colors.blue.shade700,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 10),
-          _buildGuidelineItem('تأكد من صحة الرابط قبل الإبلاغ'),
-          _buildGuidelineItem('الإبلاغ الكاذب قد يعرضك للمساءلة'),
-          _buildGuidelineItem('سيتم مراجعة البلاغ خلال 24 ساعة'),
-          _buildGuidelineItem('يمكنك متابعة حالة البلاغ عبر رقم التتبع'),
+          _buildGuidelineItem('تأكد من صحة الرابط قبل الإبلاغ', isDarkMode),
+          _buildGuidelineItem('الإبلاغ الكاذب قد يعرضك للمساءلة', isDarkMode),
+          _buildGuidelineItem('سيتم مراجعة البلاغ خلال 24 ساعة', isDarkMode),
+          _buildGuidelineItem('يمكنك متابعة حالة البلاغ عبر رقم التتبع', isDarkMode),
         ],
       ),
     );
   }
 
-  Widget _buildGuidelineItem(String text) {
+  Widget _buildGuidelineItem(String text, bool isDarkMode) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(Icons.check_circle, size: 16, color: Colors.blue.shade400),
+          Icon(
+            Icons.check_circle,
+            size: 16,
+            color: isDarkMode ? Colors.blue.shade300 : Colors.blue.shade400,
+          ),
           const SizedBox(width: 8),
-          Expanded(child: Text(text, style: const TextStyle(fontSize: 12))),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 12,
+                color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildErrorWidget(ReportController reportController) {
+  Widget _buildErrorWidget(ReportController reportController, bool isDarkMode) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.red.withOpacity(0.1),
+        color: isDarkMode ? Colors.red.shade900.withOpacity(0.3) : Colors.red.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.red.withOpacity(0.3)),
+        border: Border.all(
+          color: isDarkMode ? Colors.red.shade700.withOpacity(0.3) : Colors.red.withOpacity(0.3),
+        ),
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: Colors.red),
+          Icon(
+            Icons.error_outline,
+            color: isDarkMode ? Colors.red.shade300 : Colors.red,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               reportController.lastError!,
-              style: const TextStyle(color: Colors.red),
+              style: TextStyle(
+                color: isDarkMode ? Colors.red.shade300 : Colors.red,
+              ),
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.close, size: 20),
+            icon: Icon(
+              Icons.close,
+              size: 20,
+              color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,
+            ),
             onPressed: reportController.clearError,
           ),
         ],
@@ -527,12 +605,19 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
   }
 
   void _showSuccessDialog(ReportController reportController, ReportModel report) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final trackingNumber = reportController.reports.first.trackingNumber ?? 'غير متوفر';
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('تم استلام البلاغ'),
+        backgroundColor: isDarkMode ? const Color(0xFF2A2A3A) : Colors.white,
+        title: Text(
+          'تم استلام البلاغ',
+          style: TextStyle(
+            color: isDarkMode ? Colors.white : Colors.black87,
+          ),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -549,30 +634,36 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'شكراً لك على المساهمة في حماية المجتمع',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(
+                fontSize: 16,
+                color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+              ),
             ),
             const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
                 children: [
-                  const Text(
+                  Text(
                     'رقم تتبع البلاغ:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   SelectableText(
                     trackingNumber,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
-                      color: Color(0xFF0A4779),
+                      color: isDarkMode ? Colors.orange.shade300 : const Color(0xFF0A4779),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -584,16 +675,20 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('إغلاق'),
+            child: Text(
+              'إغلاق',
+              style: TextStyle(
+                color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade700,
+              ),
+            ),
           ),
           ElevatedButton.icon(
-            onPressed: () {
-              // مشاركة رقم التتبع
-            },
+            onPressed: () {},
             icon: const Icon(Icons.share),
             label: const Text('مشاركة'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0A4779),
+              backgroundColor: isDarkMode ? Colors.orange.shade700 : const Color(0xFF0A4779),
+              foregroundColor: Colors.white,
             ),
           ),
         ],
@@ -602,7 +697,6 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
   }
 
   void _showReportsHistory(BuildContext context) {
-    // يمكن إضافة صفحة سجل البلاغات
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('سيتم إضافة سجل البلاغات قريباً'),
@@ -612,17 +706,33 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
   }
 
   void _showInfoDialog(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('معلومات الإبلاغ'),
-        content: const Text(
+        backgroundColor: isDarkMode ? const Color(0xFF2A2A3A) : Colors.white,
+        title: Text(
+          'معلومات الإبلاغ',
+          style: TextStyle(
+            color: isDarkMode ? Colors.white : Colors.black87,
+          ),
+        ),
+        content: Text(
           'الإبلاغ عن الروابط الضارة يساعد في حماية المجتمع الرقمي. يتم مراجعة جميع البلاغات من قبل فريق متخصص. يمكنك متابعة حالة بلاغك باستخدام رقم التتبع.',
+          style: TextStyle(
+            color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('حسناً'),
+            child: Text(
+              'حسناً',
+              style: TextStyle(
+                color: isDarkMode ? Colors.orange.shade300 : const Color(0xFF0A4779),
+              ),
+            ),
           ),
         ],
       ),

@@ -35,16 +35,21 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
 
     return Scaffold(
       appBar: AppBar(
+        title: _isSearching ? _buildSearchField() : const Text('بحث'),
+        centerTitle: true,
         actions: _buildAppBarActions(scanController),
         bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'الكل'),
-            Tab(text: 'آمن'),
-            Tab(text: 'خطير'),
-            
-          ],
-        ),
+        controller: _tabController,
+        labelColor: Colors.white,        
+        unselectedLabelColor: Colors.white.withOpacity(0.7), 
+        indicatorColor: Colors.white,     
+        indicatorWeight: 3,              
+        tabs: const [
+        Tab(text: 'الكل'),
+        Tab(text: 'آمن'),
+        Tab(text: 'خطير'),
+      ],
+),
       ),
       body: scanController.isScanning
           ? const Center(child: CircularProgressIndicator())

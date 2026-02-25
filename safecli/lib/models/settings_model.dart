@@ -1,4 +1,4 @@
-class SettingsModel {
+﻿class SettingsModel {
   bool autoScan;
   bool notifications;
   String language;

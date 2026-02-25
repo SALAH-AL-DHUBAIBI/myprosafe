@@ -1,7 +1,6 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../models/scan_result.dart';
-import '../models/user_model.dart';
 import '../services/scan_service.dart';
 import '../services/local_storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';

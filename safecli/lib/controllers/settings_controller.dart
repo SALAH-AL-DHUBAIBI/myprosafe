@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/settings_model.dart';
 
@@ -32,7 +32,7 @@ class SettingsController extends ChangeNotifier {
         scanLevel: prefs.getString('scanLevel') ?? 'standard',
       );
     } catch (e) {
-      print('خطأ في تحميل الإعدادات: $e');
+      debugPrint('خطأ في تحميل الإعدادات: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -53,7 +53,7 @@ class SettingsController extends ChangeNotifier {
       await prefs.setInt('scanTimeout', _settings.scanTimeout);
       await prefs.setString('scanLevel', _settings.scanLevel);
     } catch (e) {
-      print('خطأ في حفظ الإعدادات: $e');
+      debugPrint('خطأ في حفظ الإعدادات: $e');
     }
   }
 

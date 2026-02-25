@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/auth_controller.dart';
 
@@ -34,9 +33,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (!_agreeToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('يرجى الموافقة على الشروط والأحكام'),
-          backgroundColor: Colors.orange,
+        SnackBar(
+          content: const Text('يرجى الموافقة على الشروط والأحكام'),
+          backgroundColor: Theme.of(context).colorScheme.secondary,
         ),
       );
       return;
@@ -49,11 +48,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _passwordController.text,
       );
 
-      if (!success && authController.error != null && mounted) {
+      if (!context.mounted) return;
+      if (!success && authController.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(authController.error!),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -62,17 +62,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authController = context.watch<AuthController>();
 
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF4D82B8),
-              Color(0xFF0A4779),
+              Theme.of(context).colorScheme.tertiaryContainer,
+              Theme.of(context).colorScheme.tertiary,
             ],
           ),
         ),
@@ -84,9 +83,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 children: [
                   _buildHeader(),
                   const SizedBox(height: 30),
-                  _buildRegisterCard(authController),
+                  _buildRegisterCard(context),
                   const SizedBox(height: 20),
-                  _buildLoginLink(),
+                  _buildLoginLink(context),
                 ],
               ),
             ),
@@ -103,29 +102,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
           width: 80,
           height: 80,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surface,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
+                color: Theme.of(context).shadowColor,
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
             ],
           ),
-          child: const Icon(
+          child: Icon(
             Icons.person_add_rounded,
             size: 40,
-            color: Color(0xFF0A4779),
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
         const SizedBox(height: 10),
-        const Text(
+        Text(
           'إنشاء حساب جديد',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onTertiary,
           ),
         ),
         const SizedBox(height: 5),
@@ -133,21 +132,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'انضم إلينا وابدأ رحلة الحماية',
           style: TextStyle(
             fontSize: 14,
-            color: Colors.white.withOpacity(0.8),
+            color: Theme.of(context).colorScheme.onTertiary.withValues(alpha: 0.8),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildRegisterCard(AuthController authController) {
+  Widget _buildRegisterCard(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Theme.of(context).shadowColor,
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -159,17 +158,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
           key: _formKey,
           child: Column(
             children: [
-              _buildNameField(),
+              _buildNameField(context),
               const SizedBox(height: 15),
-              _buildEmailField(),
+              _buildEmailField(context),
               const SizedBox(height: 15),
-              _buildPasswordField(),
+              _buildPasswordField(context),
               const SizedBox(height: 15),
-              _buildConfirmPasswordField(),
+              _buildConfirmPasswordField(context),
               const SizedBox(height: 15),
-              _buildTermsCheckbox(),
+              _buildTermsCheckbox(context),
               const SizedBox(height: 20),
-              _buildRegisterButton(authController),
+              _buildRegisterButton(context),
             ],
           ),
         ),
@@ -177,23 +176,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildNameField() {
+  Widget _buildNameField(BuildContext context) {
     return TextFormField(
       controller: _nameController,
       textDirection: TextDirection.rtl,
       decoration: InputDecoration(
         labelText: 'الاسم الكامل',
-        prefixIcon: const Icon(Icons.person, color: Color(0xFF0A4779)),
+        prefixIcon: Icon(Icons.person, color: Theme.of(context).colorScheme.primary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF0A4779), width: 2),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
         ),
       ),
       validator: (value) {
@@ -208,24 +207,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildEmailField() {
+  Widget _buildEmailField(BuildContext context) {
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
       textDirection: TextDirection.ltr,
       decoration: InputDecoration(
         labelText: 'البريد الإلكتروني',
-        prefixIcon: const Icon(Icons.email, color: Color(0xFF0A4779)),
+        prefixIcon: Icon(Icons.email, color: Theme.of(context).colorScheme.primary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF0A4779), width: 2),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
         ),
       ),
       validator: (value) {
@@ -240,18 +239,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildPasswordField() {
+  Widget _buildPasswordField(BuildContext context) {
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
       textDirection: TextDirection.ltr,
       decoration: InputDecoration(
         labelText: 'كلمة المرور',
-        prefixIcon: const Icon(Icons.lock, color: Color(0xFF0A4779)),
+        prefixIcon: Icon(Icons.lock, color: Theme.of(context).colorScheme.primary),
         suffixIcon: IconButton(
           icon: Icon(
             _obscurePassword ? Icons.visibility_off : Icons.visibility,
-            color: Colors.grey,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           onPressed: () {
             setState(() {
@@ -264,11 +263,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF0A4779), width: 2),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
         ),
       ),
       validator: (value) {
@@ -286,18 +285,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildConfirmPasswordField() {
+  Widget _buildConfirmPasswordField(BuildContext context) {
     return TextFormField(
       controller: _confirmPasswordController,
       obscureText: _obscureConfirmPassword,
       textDirection: TextDirection.ltr,
       decoration: InputDecoration(
         labelText: 'تأكيد كلمة المرور',
-        prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF0A4779)),
+        prefixIcon: Icon(Icons.lock_outline, color: Theme.of(context).colorScheme.primary),
         suffixIcon: IconButton(
           icon: Icon(
             _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
-            color: Colors.grey,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           onPressed: () {
             setState(() {
@@ -310,11 +309,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF0A4779), width: 2),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
         ),
       ),
       validator: (value) {
@@ -329,12 +328,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildTermsCheckbox() {
+  Widget _buildTermsCheckbox(BuildContext context) {
     return Row(
       children: [
         Checkbox(
           value: _agreeToTerms,
-          activeColor: const Color(0xFF0A4779),
+          activeColor: Theme.of(context).colorScheme.primary,
           onChanged: (value) {
             setState(() {
               _agreeToTerms = value ?? false;
@@ -347,7 +346,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF0A4779).withOpacity(0.05),
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(8),
       ),
       child: RichText(
@@ -355,14 +354,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
           text: 'أوافق على ',
           style: TextStyle(
             fontSize: 14,
-            color: Colors.grey.shade700,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontFamily: 'Tajawal', // إذا كنت تستخدم خط Tajawal
           ),
-          children: const [
+          children: [
             TextSpan(
               text: 'الشروط والأحكام',
               style: TextStyle(
-                color: Color(0xFF0A4779),
+                color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.underline,
                 fontSize: 14,
@@ -378,51 +377,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildRegisterButton(AuthController authController) {
+  Widget _buildRegisterButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       height: 50,
-      child: ElevatedButton(
-        onPressed: authController.isLoading ? null : () => _register(context),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF0A4779),
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 2,
-        ),
-        child: authController.isLoading
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : const Text(
-                'إنشاء حساب',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      child: Consumer<AuthController>(
+        builder: (context, authController, child) {
+          return ElevatedButton(
+            onPressed: authController.isLoading ? null : () => _register(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
+              elevation: 2,
+            ),
+            child: authController.isLoading
+                ? SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onPrimary),
+                    ),
+                  )
+                : const Text(
+                    'إنشاء حساب',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildLoginLink() {
+  Widget _buildLoginLink(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
           'لديك حساب بالفعل؟',
-          style: TextStyle(color: Colors.white.withOpacity(0.9)),
+          style: TextStyle(color: Theme.of(context).colorScheme.onTertiary.withValues(alpha: 0.9)),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text(
+          child: Text(
             'تسجيل الدخول',
             style: TextStyle(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onTertiary,
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),

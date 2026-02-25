@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../models/report_model.dart';
-import '../services/api_service.dart';
 import '../services/local_storage_service.dart';
-import 'dart:convert';
 
 class ReportController extends ChangeNotifier {
   List<ReportModel> _reports = [];
@@ -10,7 +8,6 @@ class ReportController extends ChangeNotifier {
   bool _isLoading = false;
   String? _lastError;
 
-  final ApiService _apiService = ApiService();
   final LocalStorageService _storageService = LocalStorageService();
 
   List<ReportModel> get reports => List.unmodifiable(_reports);

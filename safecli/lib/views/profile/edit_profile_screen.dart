@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/profile_controller.dart';
@@ -57,19 +57,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final profileController = context.watch<ProfileController>();
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final profileController = context.read<ProfileController>();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('تعديل الملف الشخصي'),
         centerTitle: true,
-        backgroundColor: isDarkMode ? const Color(0xFF1A1A2E) : const Color(0xFF0A4779),
-        foregroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => _showExitDialog(context, isDarkMode),
+          onPressed: () => _showExitDialog(context),
         ),
         actions: [
           if (_hasChanges)
@@ -79,7 +76,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 'حفظ',
                 style: TextStyle(
                   color: _isLoading 
-                      ? Colors.white.withOpacity(0.5) 
+                      ? Colors.white.withValues(alpha: 0.5) 
                       : Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -91,22 +88,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       body: _isLoading
           ? Center(
               child: CircularProgressIndicator(
-                color: isDarkMode ? Colors.orange.shade300 : const Color(0xFF0A4779),
+                color: Theme.of(context).colorScheme.primary,
               ),
             )
           : Container(
               decoration: BoxDecoration(
-                color: isDarkMode ? const Color(0xFF121212) : Colors.grey.shade50,
+                color: Theme.of(context).colorScheme.surface,
               ),
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    _buildProfileImage(profileController, isDarkMode),
+                    _buildProfileImage(profileController),
                     const SizedBox(height: 30),
-                    _buildForm(isDarkMode),
+                    _buildForm(),
                     const SizedBox(height: 30),
-                    _buildSaveButton(profileController, isDarkMode),
+                    _buildSaveButton(profileController),
                   ],
                 ),
               ),
@@ -114,9 +111,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildProfileImage(ProfileController profileController, bool isDarkMode) {
+  Widget _buildProfileImage(ProfileController profileController) {
     return GestureDetector(
-      onTap: () => _showImageOptions(context, profileController, isDarkMode),
+      onTap: () => _showImageOptions(context, profileController),
       child: Stack(
         alignment: Alignment.bottomRight,
         children: [
@@ -124,14 +121,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: isDarkMode ? Colors.orange.shade300 : const Color(0xFF0A4779), 
+                color: Theme.of(context).colorScheme.primary, 
                 width: 3
               ),
               boxShadow: [
                 BoxShadow(
-                  color: isDarkMode 
-                      ? Colors.black.withOpacity(0.3) 
-                      : Colors.black.withOpacity(0.1),
+                  color: Theme.of(context).shadowColor.withValues(alpha: 0.15),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),
@@ -139,13 +134,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             child: CircleAvatar(
               radius: 70,
-              backgroundImage: _getProfileImage(profileController.user, isDarkMode),
-              backgroundColor: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200,
+              backgroundImage: _getProfileImage(profileController.user),
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               child: _profileImage == null && profileController.user.profileImage == null
                   ? Icon(
                       Icons.person,
                       size: 50,
-                      color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     )
                   : null,
             ),
@@ -153,16 +148,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: isDarkMode ? Colors.orange.shade700 : const Color(0xFF0A4779),
+              color: Theme.of(context).colorScheme.primary,
               shape: BoxShape.circle,
               border: Border.all(
-                color: isDarkMode ? Colors.orange.shade300 : Colors.white,
+                color: Theme.of(context).colorScheme.onPrimary,
                 width: 2,
               ),
             ),
             child: Icon(
               Icons.edit,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onPrimary,
               size: 22,
             ),
           ),
@@ -171,17 +166,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildForm(bool isDarkMode) {
+  Widget _buildForm() {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF2A2A3A) : Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: isDarkMode 
-                ? Colors.black.withOpacity(0.3) 
-                : Colors.black.withOpacity(0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -195,7 +188,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: isDarkMode ? Colors.orange.shade300 : const Color(0xFF0A4779),
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           const SizedBox(height: 20),
@@ -203,7 +196,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             controller: _nameController,
             label: 'الاسم الكامل',
             icon: Icons.person,
-            isDarkMode: isDarkMode,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'الاسم مطلوب';
@@ -220,7 +212,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             label: 'البريد الإلكتروني',
             icon: Icons.email,
             keyboardType: TextInputType.emailAddress,
-            isDarkMode: isDarkMode,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'البريد الإلكتروني مطلوب';
@@ -237,7 +228,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             label: 'رقم الهاتف (اختياري)',
             icon: Icons.phone,
             keyboardType: TextInputType.phone,
-            isDarkMode: isDarkMode,
           ),
         ],
       ),
@@ -250,22 +240,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     required IconData icon,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
-    required bool isDarkMode,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       style: TextStyle(
-        color: isDarkMode ? Colors.white : Colors.black87,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(
-          color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
         prefixIcon: Icon(
           icon, 
-          color: isDarkMode ? Colors.orange.shade300 : const Color(0xFF0A4779)
+          color: Theme.of(context).colorScheme.primary
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -278,21 +267,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: isDarkMode ? Colors.orange.shade300 : const Color(0xFF0A4779), 
+            color: Theme.of(context).colorScheme.primary, 
             width: 2
           ),
         ),
         filled: true,
-        fillColor: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade50,
+        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         errorStyle: TextStyle(
-          color: isDarkMode ? Colors.red.shade300 : Colors.red,
+          color: Theme.of(context).colorScheme.error,
         ),
       ),
       validator: validator,
     );
   }
 
-  Widget _buildSaveButton(ProfileController profileController, bool isDarkMode) {
+  Widget _buildSaveButton(ProfileController profileController) {
     return SizedBox(
       width: double.infinity,
       height: 55,
@@ -301,11 +290,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ? () => _saveProfile(profileController)
             : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: isDarkMode ? Colors.orange.shade700 : const Color(0xFF0A4779),
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: isDarkMode 
-              ? Colors.grey.shade700.withOpacity(0.5)
-              : Colors.grey.shade400,
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          disabledBackgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -319,7 +306,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  ImageProvider _getProfileImage(user, bool isDarkMode) {
+  ImageProvider _getProfileImage(user) {
     if (_profileImage != null) {
       return FileImage(_profileImage!);
     }
@@ -333,10 +320,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return const AssetImage('assets/images/default_profile.png');
   }
 
-  void _showImageOptions(BuildContext context, ProfileController profileController, bool isDarkMode) {
+  void _showImageOptions(BuildContext context, ProfileController profileController) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: isDarkMode ? const Color(0xFF2A2A3A) : Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -350,7 +337,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: isDarkMode ? Colors.white : Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 20),
@@ -358,18 +345,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.primaryContainer,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.photo_library,
-                  color: isDarkMode ? Colors.blue.shade300 : Colors.blue,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               title: Text(
                 'اختر من المعرض',
                 style: TextStyle(
-                  color: isDarkMode ? Colors.white : Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               onTap: () async {
@@ -387,18 +374,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.secondaryContainer,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.camera_alt,
-                  color: isDarkMode ? Colors.orange.shade300 : Colors.orange,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
               title: Text(
                 'التقاط صورة',
                 style: TextStyle(
-                  color: isDarkMode ? Colors.white : Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               onTap: () async {
@@ -418,18 +405,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
+                    color: Theme.of(context).colorScheme.errorContainer,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.delete,
-                    color: isDarkMode ? Colors.red.shade300 : Colors.red,
+                    color: Theme.of(context).colorScheme.error,
                   ),
                 ),
                 title: Text(
                   'حذف الصورة',
                   style: TextStyle(
-                    color: isDarkMode ? Colors.red.shade300 : Colors.red,
+                    color: Theme.of(context).colorScheme.error,
                   ),
                 ),
                 onTap: () {
@@ -478,7 +465,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('تم حفظ التغييرات بنجاح'),
-            backgroundColor: Colors.green,
+            backgroundColor: Theme.of(context).colorScheme.tertiary,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -489,7 +476,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMessage ?? 'حدث خطأ أثناء الحفظ'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -500,22 +487,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  void _showExitDialog(BuildContext context, bool isDarkMode) {
+  void _showExitDialog(BuildContext context) {
     if (_hasChanges) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          backgroundColor: isDarkMode ? const Color(0xFF2A2A3A) : Colors.white,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           title: Text(
             'تجاهل التغييرات؟',
             style: TextStyle(
-              color: isDarkMode ? Colors.white : Colors.black87,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           content: Text(
             'لديك تغييرات غير محفوظة. هل تريد تجاهلها؟',
             style: TextStyle(
-              color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           actions: [
@@ -524,7 +511,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Text(
                 'إلغاء',
                 style: TextStyle(
-                  color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade700,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
@@ -534,8 +521,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: isDarkMode ? Colors.red.shade800 : Colors.red,
-                foregroundColor: Colors.white,
+                backgroundColor: Theme.of(context).colorScheme.error,
+                foregroundColor: Theme.of(context).colorScheme.onError,
               ),
               child: const Text('تجاهل'),
             ),

@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/auth_controller.dart';
 import 'register_screen.dart';
@@ -34,7 +33,8 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text,
       );
 
-      if (!success && authController.error != null && mounted) {
+      if (!context.mounted) return;
+      if (!success && authController.error != null) {
         _showErrorSnackBar(context, authController.error!);
       }
     }
@@ -44,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(error),
-        backgroundColor: Colors.red,
+        backgroundColor: Theme.of(context).colorScheme.error,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
@@ -53,20 +53,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authController = context.watch<AuthController>();
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
       body: Container(
         width: size.width,
         height: size.height,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF4D82B8),
-              Color(0xFF0A4779),
+              Theme.of(context).colorScheme.tertiary,
+              Theme.of(context).colorScheme.tertiaryContainer,
             ],
           ),
         ),
@@ -79,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   _buildLogo(),
                   const SizedBox(height: 40),
-                  _buildLoginCard(authController),
+                  _buildLoginCard(),
                   const SizedBox(height: 20),
                   _buildRegisterLink(),
                 ],
@@ -98,29 +97,27 @@ class _LoginScreenState extends State<LoginScreen> {
           width: 100,
           height: 100,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surface,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 15,
+                color: Theme.of(context).shadowColor,
+                blurRadius: 10,
                 offset: const Offset(0, 5),
               ),
             ],
           ),
-          child: const Icon(
+          child: Icon(
             Icons.security_rounded,
             size: 50,
-            color: Color(0xFF0A4779),
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
         const SizedBox(height: 15),
-        const Text(
-          'Safe Clik',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+        Text(
+          'مرحباً بك مجدداً',
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
         const SizedBox(height: 5),
@@ -128,24 +125,24 @@ class _LoginScreenState extends State<LoginScreen> {
           'الحماية الذكية تبدأ من هنا',
           style: TextStyle(
             fontSize: 14,
-            color: Colors.white.withOpacity(0.8),
+            color: Theme.of(context).colorScheme.onTertiary.withValues(alpha: 0.8),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildLoginCard(AuthController authController) {
+  Widget _buildLoginCard() {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Theme.of(context).shadowColor,
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -155,12 +152,12 @@ class _LoginScreenState extends State<LoginScreen> {
           key: _formKey,
           child: Column(
             children: [
-              const Text(
+              Text(
                 'تسجيل الدخول',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF0A4779),
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               const SizedBox(height: 20),
@@ -170,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 10),
               _buildRememberMeAndForgotPassword(),
               const SizedBox(height: 20),
-              _buildLoginButton(authController),
+              _buildLoginButton(),
             ],
           ),
         ),
@@ -186,22 +183,22 @@ class _LoginScreenState extends State<LoginScreen> {
       decoration: InputDecoration(
         labelText: 'البريد الإلكتروني',
         hintText: 'example@email.com',
-        prefixIcon: const Icon(Icons.email, color: Color(0xFF0A4779)),
+        prefixIcon: Icon(Icons.email, color: Theme.of(context).colorScheme.primary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF0A4779), width: 2),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
         ),
       ),
       validator: (value) {
@@ -223,11 +220,11 @@ class _LoginScreenState extends State<LoginScreen> {
       textDirection: TextDirection.ltr,
       decoration: InputDecoration(
         labelText: 'كلمة المرور',
-        prefixIcon: const Icon(Icons.lock, color: Color(0xFF0A4779)),
+        prefixIcon: Icon(Icons.lock, color: Theme.of(context).colorScheme.primary),
         suffixIcon: IconButton(
           icon: Icon(
             _obscurePassword ? Icons.visibility_off : Icons.visibility,
-            color: Colors.grey,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           onPressed: () {
             setState(() {
@@ -237,19 +234,19 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF0A4779), width: 2),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.error),
         ),
       ),
       validator: (value) {
@@ -272,51 +269,56 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             Checkbox(
               value: _rememberMe,
-              activeColor: const Color(0xFF0A4779),
+              activeColor: Theme.of(context).colorScheme.primary,
               onChanged: (value) => setState(() => _rememberMe = value ?? false),
             ),
             const Text('تذكرني'),
           ],
         ),
+        const SizedBox(height: 8),
         TextButton(
           onPressed: _showForgotPasswordDialog,
-          child: const Text(
+          child: Text(
             'نسيت كلمة المرور؟',
-            style: TextStyle(color: Color(0xFF0A4779)),
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildLoginButton(AuthController authController) {
-    return SizedBox(
-      width: double.infinity,
-      height: 50,
-      child: ElevatedButton(
-        onPressed: authController.isLoading ? null : () => _login(context),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF0A4779),
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 2,
-        ),
-        child: authController.isLoading
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : const Text(
-                'تسجيل الدخول',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+  Widget _buildLoginButton() {
+    return Consumer<AuthController>(
+      builder: (context, authController, child) {
+        return SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: ElevatedButton(
+            onPressed: authController.isLoading ? null : () => _login(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-      ),
+              elevation: 5,
+            ),
+            child: authController.isLoading
+                ? SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  )
+                : const Text(
+                    'تسجيل الدخول',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+          ),
+        );
+      },
     );
   }
 
@@ -326,7 +328,7 @@ class _LoginScreenState extends State<LoginScreen> {
       children: [
         Text(
           'ليس لديك حساب؟',
-          style: TextStyle(color: Colors.white.withOpacity(0.9)),
+          style: TextStyle(color: Theme.of(context).colorScheme.onTertiary.withValues(alpha: 0.9)),
         ),
         TextButton(
           onPressed: () {
@@ -335,10 +337,10 @@ class _LoginScreenState extends State<LoginScreen> {
               MaterialPageRoute(builder: (context) => const RegisterScreen()),
             );
           },
-          child: const Text(
+          child: Text(
             'إنشاء حساب',
             style: TextStyle(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onTertiary,
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
@@ -354,16 +356,17 @@ class _LoginScreenState extends State<LoginScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('استعادة كلمة المرور'),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        title: const Text('استعادة كلمة المرور', style: TextStyle(fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('أدخل بريدك الإلكتروني لإرسال رابط إعادة التعيين'),
+            Text('أدخل بريدك الإلكتروني لإرسال رابط استعادة كلمة المرور', style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 15),
             TextField(
               controller: emailController,
               decoration: InputDecoration(
-                hintText: 'example@email.com',
+                hintText: 'البريد الإلكتروني',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -376,20 +379,21 @@ class _LoginScreenState extends State<LoginScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
+            child: Text('إلغاء', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني'),
-                  backgroundColor: Colors.green,
+                SnackBar(
+                  content: const Text('تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني'),
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
                 ),
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0A4779),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
             ),
             child: const Text('إرسال'),
           ),

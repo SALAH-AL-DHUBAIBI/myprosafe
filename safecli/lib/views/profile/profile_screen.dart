@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/auth_controller.dart';
@@ -18,20 +18,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authController = context.watch<AuthController>();
-    final profileController = context.watch<ProfileController>();
-    final user = profileController.user;
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
       
-      backgroundColor: isDarkMode ? const Color(0xFF121212) : Colors.white,
-      body: profileController.isLoading
-          ? Center(
-              child: CircularProgressIndicator(
-                color: isDarkMode ? Colors.orange.shade300 : const Color(0xFF0A4779),
-              ),
-            )
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: Consumer<ProfileController>(
+        builder: (context, profileController, child) {
+          final user = profileController.user;
+          return profileController.isLoading
+            ? Center(
+                child: CircularProgressIndicator(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              )
           : SingleChildScrollView(
               child: Column(
                 children: [
@@ -43,15 +41,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: isDarkMode
-                            ? [
-                                const Color(0xFF1A1A2E),
-                                const Color(0xFF16213E),
-                              ]
-                            : [
-                                const Color(0xFF0A4779),
-                                const Color(0xFF4D82B8),
-                              ],
+                        colors: [
+                            Theme.of(context).colorScheme.tertiary,
+                            Theme.of(context).colorScheme.tertiaryContainer,
+                          ],
                       ),
                       borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(30),
@@ -59,9 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: isDarkMode 
-                              ? Colors.black.withOpacity(0.3) 
-                              : Colors.black.withOpacity(0.1),
+                          color: Theme.of(context).shadowColor,
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -71,15 +62,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         const SizedBox(height: 10),
                         // صورة المستخدم
-                        _buildProfileImage(user, profileController, isDarkMode),
+                        _buildProfileImage(context, user, profileController),
                         const SizedBox(height: 15),
                         // اسم المستخدم
                         Text(
                           user.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onPrimary,
                           ),
                         ),
                         const SizedBox(height: 5),
@@ -91,15 +82,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               user.email,
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.white.withOpacity(0.9),
+                                color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.9),
                               ),
                             ),
                             if (user.isEmailVerified)
-                              const Padding(
-                                padding: EdgeInsets.only(right: 4),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 4),
                                 child: Icon(
                                   Icons.verified,
-                                  color: Colors.white,
+                                  color: Theme.of(context).colorScheme.onPrimary,
                                   size: 16,
                                 ),
                               ),
@@ -110,14 +101,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
                             'منضم منذ ${_formatJoinDate(user.createdAt)}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onPrimary,
                             ),
                           ),
                         ),
@@ -142,10 +133,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(height: 20),
                           
                           // خيارات الملف الشخصي
-                          _buildProfileOptions(context, authController, profileController, isDarkMode),
+                          _buildProfileOptions(context, profileController),
                           
                           if (profileController.error != null)
-                            _buildErrorWidget(profileController, isDarkMode),
+                            _buildErrorWidget(context, profileController),
                           
                           const SizedBox(height: 20),
                         ],
@@ -154,13 +145,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ],
               ),
-            ),
+            );
+        },
+      ),
     );
   }
 
-  Widget _buildProfileImage(user, ProfileController profileController, bool isDarkMode) {
+  Widget _buildProfileImage(BuildContext context, user, ProfileController profileController) {
     return GestureDetector(
-      onTap: () => _showImageOptions(context, profileController, isDarkMode),
+      onTap: () => _showImageOptions(context, profileController),
       child: Stack(
         alignment: Alignment.bottomRight,
         children: [
@@ -169,12 +162,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 width: 4,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Theme.of(context).shadowColor.withValues(alpha: 0.3),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),
@@ -183,10 +176,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: CircleAvatar(
               radius: 60,
               backgroundImage: _getProfileImage(user),
-              backgroundColor: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200,
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               child: _isLoadingImage
                   ? CircularProgressIndicator(
-                      color: isDarkMode ? Colors.orange.shade300 : Colors.white,
+                      color: Theme.of(context).colorScheme.primary,
                     )
                   : null,
             ),
@@ -195,16 +188,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: isDarkMode ? Colors.orange.shade700 : const Color(0xFF0A4779),
+              color: Theme.of(context).colorScheme.primary,
               shape: BoxShape.circle,
               border: Border.all(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 width: 2,
               ),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.camera_alt,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onPrimary,
               size: 20,
             ),
           ),
@@ -215,19 +208,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildProfileOptions(
     BuildContext context,
-    AuthController authController,
     ProfileController profileController,
-    bool isDarkMode,
   ) {
     return Container(
       decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF2A2A3A) : Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: isDarkMode 
-                ? Colors.black.withOpacity(0.3) 
-                : Colors.black.withOpacity(0.05),
+            color: Theme.of(context).shadowColor,
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -236,10 +225,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         children: [
           _buildOptionTile(
+            context: context,
             icon: Icons.edit,
-            iconColor: isDarkMode ? Colors.blue.shade300 : Colors.blue,
+            iconColor: Theme.of(context).colorScheme.primary,
             title: 'تعديل الملف الشخصي',
-            titleColor: isDarkMode ? Colors.white : Colors.black87,
             onTap: () {
               Navigator.push(
                 context,
@@ -248,93 +237,88 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               );
             },
-            isDarkMode: isDarkMode,
           ),
-          _buildDivider(isDarkMode),
+          _buildDivider(context),
           _buildOptionTile(
+            context: context,
             icon: Icons.security,
-            iconColor: isDarkMode ? Colors.green.shade300 : Colors.green,
+            iconColor: Theme.of(context).colorScheme.primary,
             title: 'الأمان والخصوصية',
-            titleColor: isDarkMode ? Colors.white : Colors.black87,
             onTap: () {},
-            isDarkMode: isDarkMode,
           ),
-          _buildDivider(isDarkMode),
+          _buildDivider(context),
           _buildOptionTile(
+            context: context,
             icon: Icons.notifications,
-            iconColor: isDarkMode ? Colors.orange.shade300 : Colors.orange,
+            iconColor: Theme.of(context).colorScheme.secondary,
             title: 'الإشعارات',
-            titleColor: isDarkMode ? Colors.white : Colors.black87,
             trailing: Switch(
               value: true,
               onChanged: (value) {},
-              activeColor: isDarkMode ? Colors.orange.shade300 : const Color(0xFF0A4779),
-              activeTrackColor: isDarkMode ? Colors.orange.shade700 : const Color(0xFF4D82B8),
+              activeThumbColor: Theme.of(context).colorScheme.primary,
+              activeTrackColor: Theme.of(context).colorScheme.primaryContainer,
             ),
-            isDarkMode: isDarkMode,
           ),
-          _buildDivider(isDarkMode),
+          _buildDivider(context),
           _buildOptionTile(
+            context: context,
             icon: Icons.language,
-            iconColor: isDarkMode ? Colors.purple.shade300 : Colors.purple,
+            iconColor: Theme.of(context).colorScheme.tertiary,
             title: 'اللغة',
-            titleColor: isDarkMode ? Colors.white : Colors.black87,
             trailing: Text(
               'العربية',
               style: TextStyle(
-                color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             onTap: () {},
-            isDarkMode: isDarkMode,
           ),
-          _buildDivider(isDarkMode),
+          _buildDivider(context),
           _buildOptionTile(
+            context: context,
             icon: Icons.help_outline,
-            iconColor: isDarkMode ? Colors.teal.shade300 : Colors.teal,
+            iconColor: Theme.of(context).colorScheme.primary,
             title: 'المساعدة والدعم',
-            titleColor: isDarkMode ? Colors.white : Colors.black87,
             onTap: () {},
-            isDarkMode: isDarkMode,
           ),
-          _buildDivider(isDarkMode),
+          _buildDivider(context),
           _buildOptionTile(
+            context: context,
             icon: Icons.logout,
-            iconColor: isDarkMode ? Colors.red.shade300 : Colors.red,
+            iconColor: Theme.of(context).colorScheme.error,
             title: 'تسجيل الخروج',
-            titleColor: isDarkMode ? Colors.red.shade300 : Colors.red,
-            onTap: () => _showLogoutDialog(context, authController, isDarkMode),
-            isDarkMode: isDarkMode,
+            titleColor: Theme.of(context).colorScheme.error,
+            onTap: () => _showLogoutDialog(context),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDivider(bool isDarkMode) {
+  Widget _buildDivider(BuildContext context) {
     return Divider(
       height: 1,
       thickness: 1,
       indent: 60,
       endIndent: 16,
-      color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200,
+      color: Theme.of(context).colorScheme.outline,
     );
   }
 
   Widget _buildOptionTile({
+    required BuildContext context,
     required IconData icon,
     required Color iconColor,
     required String title,
     Color? titleColor,
     Widget? trailing,
     VoidCallback? onTap,
-    required bool isDarkMode,
   }) {
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: iconColor.withOpacity(0.1),
+          color: iconColor.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: iconColor, size: 20),
@@ -342,42 +326,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
       title: Text(
         title,
         style: TextStyle(
-          color: titleColor ?? (isDarkMode ? Colors.white : Colors.black87),
+          color: titleColor ?? Theme.of(context).colorScheme.onSurface,
           fontWeight: FontWeight.w500,
         ),
       ),
       trailing: trailing ?? Icon(
         Icons.arrow_forward_ios, 
         size: 16,
-        color: isDarkMode ? Colors.grey.shade500 : Colors.grey.shade600,
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
       onTap: onTap,
     );
   }
 
-  Widget _buildErrorWidget(ProfileController profileController, bool isDarkMode) {
+  Widget _buildErrorWidget(BuildContext context, ProfileController profileController) {
     return Container(
       margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isDarkMode ? Colors.red.shade900.withOpacity(0.2) : Colors.red.withOpacity(0.1),
+        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isDarkMode ? Colors.red.shade700.withOpacity(0.3) : Colors.red.withOpacity(0.3),
+          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
         children: [
           Icon(
             Icons.error_outline,
-            color: isDarkMode ? Colors.red.shade300 : Colors.red,
+            color: Theme.of(context).colorScheme.error,
           ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               profileController.error!,
               style: TextStyle(
-                color: isDarkMode ? Colors.red.shade300 : Colors.red,
+                color: Theme.of(context).colorScheme.error,
               ),
             ),
           ),
@@ -385,7 +369,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             icon: Icon(
               Icons.close,
               size: 20,
-              color: isDarkMode ? Colors.grey.shade500 : Colors.grey.shade600,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             onPressed: profileController.clearError,
           ),
@@ -405,10 +389,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return const AssetImage('assets/images/default_profile.png');
   }
 
-  void _showImageOptions(BuildContext context, ProfileController profileController, bool isDarkMode) {
+  void _showImageOptions(BuildContext context, ProfileController profileController) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: isDarkMode ? const Color(0xFF2A2A3A) : Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -422,7 +406,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: isDarkMode ? Colors.white : Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 20),
@@ -430,18 +414,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.photo_library,
-                  color: isDarkMode ? Colors.blue.shade300 : Colors.blue,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               title: Text(
                 'اختر من المعرض',
                 style: TextStyle(
-                  color: isDarkMode ? Colors.white : Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               onTap: () async {
@@ -459,18 +443,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               leading: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.camera_alt,
-                  color: isDarkMode ? Colors.orange.shade300 : Colors.orange,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               title: Text(
                 'التقاط صورة',
                 style: TextStyle(
-                  color: isDarkMode ? Colors.white : Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               onTap: () async {
@@ -490,21 +474,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.delete,
-                    color: isDarkMode ? Colors.red.shade300 : Colors.red,
-                  ),
+                    color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
                 ),
-                title: Text(
-                  'حذف الصورة',
-                  style: TextStyle(
-                    color: isDarkMode ? Colors.red.shade300 : Colors.red,
-                  ),
+                child: Icon(
+                  Icons.delete,
+                  color: Theme.of(context).colorScheme.error,
                 ),
-                onTap: () {
+              ),
+              title: Text(
+                'حذف الصورة',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              ),
+              onTap: () {
                   Navigator.pop(context);
                   // حذف الصورة
                 },
@@ -515,21 +499,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showLogoutDialog(BuildContext context, AuthController authController, bool isDarkMode) {
+  void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: isDarkMode ? const Color(0xFF2A2A3A) : Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(
           'تسجيل الخروج',
           style: TextStyle(
-            color: isDarkMode ? Colors.white : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         content: Text(
           'هل أنت متأكد من أنك تريد تسجيل الخروج؟',
           style: TextStyle(
-            color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         actions: [
@@ -538,20 +522,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Text(
               'إلغاء',
               style: TextStyle(
-                color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade700,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
           ElevatedButton(
             onPressed: () async {
+              final authController = context.read<AuthController>();
               await authController.logout();
-              if (mounted) {
+              if (context.mounted) {
                 Navigator.popUntil(context, (route) => route.isFirst);
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: isDarkMode ? Colors.red.shade800 : Colors.red,
-              foregroundColor: Colors.white,
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
             ),
             child: const Text('تسجيل الخروج'),
           ),

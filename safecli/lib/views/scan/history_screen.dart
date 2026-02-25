@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../controllers/scan_controller.dart';
@@ -31,18 +31,25 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    final scanController = context.watch<ScanController>();
-
     return Scaffold(
       appBar: AppBar(
         title: _isSearching ? _buildSearchField() : const Text('بحث'),
         centerTitle: true,
-        actions: _buildAppBarActions(scanController),
+        actions: [
+          Consumer<ScanController>(
+            builder: (context, scanController, child) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: _buildAppBarActions(scanController),
+              );
+            },
+          ),
+        ],
         bottom: TabBar(
         controller: _tabController,
-        labelColor: Colors.white,        
-        unselectedLabelColor: Colors.white.withOpacity(0.7), 
-        indicatorColor: Colors.white,     
+        labelColor: Theme.of(context).colorScheme.onPrimary,        
+        unselectedLabelColor: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.7), 
+        indicatorColor: Theme.of(context).colorScheme.onPrimary,     
         indicatorWeight: 3,              
         tabs: const [
         Tab(text: 'الكل'),
@@ -51,11 +58,15 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
       ],
 ),
       ),
-      body: scanController.isScanning
-          ? const Center(child: CircularProgressIndicator())
-          : scanController.scanHistory.isEmpty
-              ? _buildEmptyState()
-              : _buildHistoryList(scanController),
+      body: Consumer<ScanController>(
+        builder: (context, scanController, child) {
+          return scanController.isScanning
+              ? const Center(child: CircularProgressIndicator())
+              : scanController.scanHistory.isEmpty
+                  ? _buildEmptyState()
+                  : _buildHistoryList(scanController);
+        },
+      ),
     );
   }
 
@@ -81,13 +92,13 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
             }
           },
           itemBuilder: (context) => [
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'clear',
               child: Row(
                 children: [
-                  Icon(Icons.delete_outline, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text('مسح السجل'),
+                  Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
+                  const SizedBox(width: 8),
+                  const Text('مسح السجل'),
                 ],
               ),
             ),
@@ -122,10 +133,10 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
       decoration: InputDecoration(
         hintText: 'بحث في السجل...',
         border: InputBorder.none,
-        hintStyle: const TextStyle(color: Colors.white70),
-        prefixIcon: const Icon(Icons.search, color: Colors.white),
+        hintStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.7)),
+        prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onPrimary),
       ),
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
       onChanged: (value) {
         setState(() {
           _searchQuery = value.toLowerCase();
@@ -142,13 +153,13 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.history_toggle_off,
               size: 80,
-              color: Colors.grey.shade400,
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
           ),
           const SizedBox(height: 20),
@@ -159,7 +170,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
           const SizedBox(height: 10),
           Text(
             'ابدأ بفحص أول رابط الآن',
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 20),
           ElevatedButton.icon(
@@ -169,12 +180,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
             icon: const Icon(Icons.add),
             label: const Text('فحص رابط جديد'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0A4779),
-              foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
             ),
           ),
         ],
@@ -190,11 +196,11 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off, size: 60, color: Colors.grey.shade400),
+            Icon(Icons.search_off, size: 60, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
             const SizedBox(height: 10),
             Text(
               'لا توجد نتائج للبحث',
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ],
         ),
@@ -208,7 +214,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
             padding: const EdgeInsets.all(8.0),
             child: Text(
               'نتائج البحث: ${filteredList.length}',
-              style: const TextStyle(color: Colors.grey),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
         Expanded(
@@ -250,6 +256,8 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
   }
 
   Widget _buildHistoryItem(BuildContext context, ScanResult item) {
+    Color itemColor = item.safe == true ? Theme.of(context).colorScheme.tertiary : item.safe == false ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.secondary;
+
     return Card(
       elevation: 2,
       margin: const EdgeInsets.only(bottom: 8),
@@ -274,7 +282,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: item.safetyColor.withOpacity(0.1),
+                  color: itemColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -283,7 +291,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                       : item.safe == false
                           ? Icons.cancel
                           : Icons.warning,
-                  color: item.safetyColor,
+                  color: itemColor,
                 ),
               ),
               const SizedBox(width: 12),
@@ -306,14 +314,14 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                         Icon(
                           Icons.access_time,
                           size: 14,
-                          color: Colors.grey.shade500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           _formatDate(item.timestamp),
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey.shade600,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -330,13 +338,13 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: item.safetyColor.withOpacity(0.1),
+                      color: itemColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       '${item.score}%',
                       style: TextStyle(
-                        color: item.safetyColor,
+                        color: itemColor,
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
                       ),
@@ -346,7 +354,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                   Text(
                     item.safetyStatus,
                     style: TextStyle(
-                      color: item.safetyColor,
+                      color: itemColor,
                       fontSize: 12,
                     ),
                   ),
@@ -377,15 +385,15 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
               controller.clearHistory();
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('تم مسح السجل بنجاح'),
-                  backgroundColor: Colors.green,
+                SnackBar(
+                  content: const Text('تم مسح السجل بنجاح'),
+                  backgroundColor: Theme.of(context).colorScheme.tertiary,
                 ),
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
             ),
             child: const Text('مسح'),
           ),

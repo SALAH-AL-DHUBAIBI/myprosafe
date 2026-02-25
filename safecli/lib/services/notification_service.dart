@@ -1,6 +1,6 @@
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+﻿import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tzData;
+import 'package:timezone/data/latest.dart' as tz_data;
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -16,7 +16,7 @@ class NotificationService {
     if (_isInitialized) return;
 
     // إعداد المنطقة الزمنية
-    tzData.initializeTimeZones();
+    tz_data.initializeTimeZones();
 
     // إعدادات Android
     const AndroidInitializationSettings androidSettings =

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 class StatsCard extends StatelessWidget {
   final String scannedCount;
@@ -31,22 +31,25 @@ class StatsCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildStatItem(
+                  context: context,
                   icon: Icons.link,
                   label: 'تم الفحص',
                   value: scannedCount,
-                  color: Colors.blue,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 _buildStatItem(
+                  context: context,
                   icon: Icons.warning,
                   label: 'ضار',
                   value: maliciousCount,
-                  color: Colors.red,
+                  color: Theme.of(context).colorScheme.error,
                 ),
                 _buildStatItem(
+                  context: context,
                   icon: Icons.block,
                   label: 'تم الحظر',
                   value: blockedCount,
-                  color: Colors.orange,
+                  color: Theme.of(context).colorScheme.tertiary,
                 ),
               ],
             ),
@@ -57,6 +60,7 @@ class StatsCard extends StatelessWidget {
   }
 
   Widget _buildStatItem({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required String value,
@@ -67,7 +71,7 @@ class StatsCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 30),
@@ -83,7 +87,7 @@ class StatsCard extends StatelessWidget {
         ),
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: Colors.grey),
+          style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
       ],
     );

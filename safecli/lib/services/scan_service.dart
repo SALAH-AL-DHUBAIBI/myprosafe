@@ -1,5 +1,4 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+﻿import 'package:flutter/foundation.dart';
 import '../models/scan_result.dart';
 import 'api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,7 +40,7 @@ class ScanService {
 
       return result;
     } catch (e) {
-      print('خطأ في فحص الرابط: $e');
+      debugPrint('خطأ في فحص الرابط: $e');
       
       // في حالة الخطأ، نعيد نتيجة افتراضية
       return ScanResult(
@@ -93,7 +92,7 @@ class ScanService {
         await prefs.setStringList('local_blacklist', blacklist);
       }
     } catch (e) {
-      print('خطأ في إضافة الرابط للقائمة السوداء: $e');
+      debugPrint('خطأ في إضافة الرابط للقائمة السوداء: $e');
     }
   }
 

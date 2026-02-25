@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/report_controller.dart';
 import '../../controllers/auth_controller.dart';
@@ -15,7 +15,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
   final TextEditingController _linkController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   String? _selectedCategory;
-  int? _selectedSeverity = 3;
+  int _selectedSeverity = 3;
   late AnimationController _animationController;
 
   final List<String> _categories = [
@@ -29,12 +29,23 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
   ];
 
   final List<Map<String, dynamic>> _severityLevels = [
-    {'value': 1, 'label': 'منخفض', 'color': Colors.green},
-    {'value': 2, 'label': 'متوسط', 'color': Colors.blue},
-    {'value': 3, 'label': 'عالي', 'color': Colors.orange},
-    {'value': 4, 'label': 'خطير', 'color': Colors.red},
-    {'value': 5, 'label': 'حرج', 'color': Colors.deepOrange},
+    {'value': 1, 'label': 'منخفض'},
+    {'value': 2, 'label': 'متوسط'},
+    {'value': 3, 'label': 'عالي'},
+    {'value': 4, 'label': 'خطير'},
+    {'value': 5, 'label': 'حرج'},
   ];
+
+  Color _getSeverityColor(BuildContext context, int severity) {
+    switch (severity) {
+      case 1: return Theme.of(context).colorScheme.tertiary;
+      case 2: return Theme.of(context).colorScheme.primary;
+      case 3: return Theme.of(context).colorScheme.secondary;
+      case 4: return Theme.of(context).colorScheme.error;
+      case 5: return Theme.of(context).colorScheme.error;
+      default: return Theme.of(context).colorScheme.primary;
+    }
+  }
 
   @override
   void initState() {
@@ -55,39 +66,29 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    final reportController = context.watch<ReportController>();
-    final authController = context.watch<AuthController>();
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: isDarkMode
-                ? [
-                    const Color(0xFF1A1A2E),
-                    const Color(0xFF16213E),
-                  ]
-                : [
-                    Colors.orange.shade50,
-                    Colors.white,
-                  ],
+            colors: [
+              Theme.of(context).colorScheme.tertiary,
+              Theme.of(context).colorScheme.surface,
+            ],
           ),
         ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              _buildHeader(isDarkMode),
+              _buildHeader(context),
               const SizedBox(height: 20),
-              _buildForm(reportController, authController, isDarkMode),
+              _buildForm(context),
               const SizedBox(height: 20),
-              _buildGuidelines(isDarkMode),
+              _buildGuidelines(context),
               const SizedBox(height: 20),
-              if (reportController.lastError != null) 
-                _buildErrorWidget(reportController, isDarkMode),
+              _buildErrorWidget(context),
             ],
           ),
         ),
@@ -95,17 +96,15 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildHeader(bool isDarkMode) {
+  Widget _buildHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDarkMode 
-            ? Colors.orange.shade900.withOpacity(0.8)
-            : Colors.orange.shade700,
+        color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: (isDarkMode ? Colors.orange.shade900 : Colors.orange.shade700).withOpacity(0.3),
+            color: Theme.of(context).shadowColor,
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -116,13 +115,13 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.warning_amber_rounded,
               size: 40,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onPrimary,
             ),
           ),
           const SizedBox(width: 15),
@@ -130,12 +129,12 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'ساعد في حماية المجتمع',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -143,7 +142,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
                   'الإبلاغ عن الروابط الضارة يساعد في حماية الآخرين',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white.withOpacity(0.9),
+                    color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.9),
                   ),
                 ),
               ],
@@ -154,10 +153,9 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildForm(ReportController reportController, AuthController authController, bool isDarkMode) {
+  Widget _buildForm(BuildContext context) {
     return Card(
       elevation: 4,
-      color: isDarkMode ? const Color(0xFF2A2A3A) : Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -169,28 +167,28 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: isDarkMode ? Colors.orange.shade300 : const Color(0xFF0A4779),
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
             const SizedBox(height: 20),
-            _buildLinkField(isDarkMode),
+            _buildLinkField(context),
             const SizedBox(height: 20),
-            _buildCategoryField(isDarkMode),
+            _buildCategoryField(context),
             const SizedBox(height: 20),
             _buildSeverityField(),
             const SizedBox(height: 20),
-            _buildDescriptionField(isDarkMode),
+            _buildDescriptionField(context),
             // const SizedBox(height: 20),
             // _buildAnonymousOption(isDarkMode),
             const SizedBox(height: 30),
-            _buildSubmitButton(reportController, authController),
+            _buildSubmitButton(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLinkField(bool isDarkMode) {
+  Widget _buildLinkField(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -198,29 +196,20 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
           'الرابط المشبوه *',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 8),
         TextField(
           controller: _linkController,
           style: TextStyle(
-            color: isDarkMode ? Colors.white : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
           decoration: InputDecoration(
             hintText: 'https://example.com',
-            hintStyle: TextStyle(
-              color: isDarkMode ? Colors.grey.shade500 : Colors.grey.shade600,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            filled: true,
-            fillColor: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade50,
-            prefixIcon: Icon(Icons.link, color: isDarkMode ? Colors.orange.shade300 : Colors.orange),
+            prefixIcon: Icon(Icons.link, color: Theme.of(context).colorScheme.primary),
             suffixIcon: IconButton(
-              icon: Icon(Icons.clear, color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600),
+              icon: Icon(Icons.clear, color: Theme.of(context).colorScheme.onSurfaceVariant),
               onPressed: () => _linkController.clear(),
             ),
           ),
@@ -230,7 +219,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildCategoryField(bool isDarkMode) {
+  Widget _buildCategoryField(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -238,14 +227,14 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
           'نوع التهديد *',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade50,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(12),
           ),
           child: DropdownButtonHideUnderline(
@@ -254,14 +243,14 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
               hint: Text(
                 'اختر نوع التهديد',
                 style: TextStyle(
-                  color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
               isExpanded: true,
-              icon: Icon(Icons.arrow_drop_down, color: isDarkMode ? Colors.orange.shade300 : Colors.orange),
-              dropdownColor: isDarkMode ? const Color(0xFF2A2A3A) : Colors.white,
+              icon: Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.primary),
+              dropdownColor: Theme.of(context).colorScheme.surface,
               style: TextStyle(
-                color: isDarkMode ? Colors.white : Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               items: _categories.map((category) {
                 return DropdownMenuItem(
@@ -304,13 +293,13 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
                     color: _selectedSeverity == level['value']
-                        ? level['color']
-                        : level['color'].withOpacity(0.1),
+                        ? _getSeverityColor(context, level['value'])
+                        : _getSeverityColor(context, level['value']).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: _selectedSeverity == level['value']
-                          ? level['color']
-                          : level['color'].withOpacity(0.3),
+                          ? _getSeverityColor(context, level['value'])
+                          : _getSeverityColor(context, level['value']).withValues(alpha: 0.3),
                     ),
                   ),
                   child: Column(
@@ -319,8 +308,8 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
                         level['value'].toString(),
                         style: TextStyle(
                           color: _selectedSeverity == level['value']
-                              ? Colors.white
-                              : level['color'],
+                              ? Theme.of(context).colorScheme.surface
+                              : _getSeverityColor(context, level['value']),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -329,8 +318,8 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
                         style: TextStyle(
                           fontSize: 10,
                           color: _selectedSeverity == level['value']
-                              ? Colors.white
-                              : level['color'],
+                              ? Theme.of(context).colorScheme.surface
+                              : _getSeverityColor(context, level['value']),
                         ),
                       ),
                     ],
@@ -344,7 +333,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildDescriptionField(bool isDarkMode) {
+  Widget _buildDescriptionField(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -352,7 +341,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
           'وصف إضافي (اختياري)',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 8),
@@ -361,19 +350,10 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
           maxLines: 4,
           maxLength: 500,
           style: TextStyle(
-            color: isDarkMode ? Colors.white : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             hintText: 'أضف أي تفاصيل إضافية عن الرابط...',
-            hintStyle: TextStyle(
-              color: isDarkMode ? Colors.grey.shade500 : Colors.grey.shade600,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            filled: true,
-            fillColor: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade50,
             alignLabelWithHint: true,
           ),
         ),
@@ -404,50 +384,47 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
   //   );
   // }
 
-  Widget _buildSubmitButton(ReportController reportController, AuthController authController) {
-    return SizedBox(
-      width: double.infinity,
-      height: 55,
-      child: ElevatedButton.icon(
-        onPressed: reportController.isReporting
-            ? null
-            : () => _submitReport(reportController, authController),
-        icon: const Icon(Icons.send),
-        label: reportController.isReporting
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : const Text(
-                'إرسال البلاغ',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.orange.shade700,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+  Widget _buildSubmitButton() {
+    return Consumer<ReportController>(
+      builder: (context, reportController, child) {
+        return SizedBox(
+          width: double.infinity,
+          height: 55,
+          child: ElevatedButton.icon(
+            onPressed: reportController.isReporting
+                ? null
+                : () => _submitReport(reportController),
+            icon: const Icon(Icons.send),
+            label: reportController.isReporting
+                ? SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onPrimary),
+                    ),
+                  )
+                : const Text(
+                    'إرسال البلاغ',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 15),
+            ),
           ),
-          elevation: 3,
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildGuidelines(bool isDarkMode) {
+  Widget _buildGuidelines(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDarkMode 
-            ? Colors.blue.shade900.withOpacity(0.2)
-            : Colors.blue.shade50,
+        color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isDarkMode ? Colors.blue.shade700.withOpacity(0.3) : Colors.blue.shade200,
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -457,29 +434,29 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
             children: [
               Icon(
                 Icons.info,
-                color: isDarkMode ? Colors.blue.shade300 : Colors.blue.shade700,
+                color: Theme.of(context).colorScheme.primary,
               ),
               const SizedBox(width: 8),
               Text(
                 'إرشادات الإبلاغ',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: isDarkMode ? Colors.blue.shade300 : Colors.blue.shade700,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 10),
-          _buildGuidelineItem('تأكد من صحة الرابط قبل الإبلاغ', isDarkMode),
-          _buildGuidelineItem('الإبلاغ الكاذب قد يعرضك للمساءلة', isDarkMode),
-          _buildGuidelineItem('سيتم مراجعة البلاغ خلال 24 ساعة', isDarkMode),
-          _buildGuidelineItem('يمكنك متابعة حالة البلاغ عبر رقم التتبع', isDarkMode),
+          _buildGuidelineItem(context, 'تأكد من صحة الرابط قبل الإبلاغ'),
+          _buildGuidelineItem(context, 'الإبلاغ الكاذب قد يعرضك للمساءلة'),
+          _buildGuidelineItem(context, 'سيتم مراجعة البلاغ خلال 24 ساعة'),
+          _buildGuidelineItem(context, 'يمكنك متابعة حالة البلاغ عبر رقم التتبع'),
         ],
       ),
     );
   }
 
-  Widget _buildGuidelineItem(String text, bool isDarkMode) {
+  Widget _buildGuidelineItem(BuildContext context, String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -487,7 +464,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
           Icon(
             Icons.check_circle,
             size: 16,
-            color: isDarkMode ? Colors.blue.shade300 : Colors.blue.shade400,
+            color: Theme.of(context).colorScheme.primary,
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -495,7 +472,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
               text,
               style: TextStyle(
                 fontSize: 12,
-                color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
@@ -504,28 +481,31 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildErrorWidget(ReportController reportController, bool isDarkMode) {
-    return Container(
-      padding: const EdgeInsets.all(12),
+  Widget _buildErrorWidget(BuildContext context) {
+    return Consumer<ReportController>(
+      builder: (context, reportController, child) {
+        if (reportController.lastError == null) return const SizedBox.shrink();
+        return Container(
+          padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isDarkMode ? Colors.red.shade900.withOpacity(0.3) : Colors.red.withOpacity(0.1),
+        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isDarkMode ? Colors.red.shade700.withOpacity(0.3) : Colors.red.withOpacity(0.3),
+          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
         children: [
           Icon(
             Icons.error_outline,
-            color: isDarkMode ? Colors.red.shade300 : Colors.red,
+            color: Theme.of(context).colorScheme.error,
           ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               reportController.lastError!,
               style: TextStyle(
-                color: isDarkMode ? Colors.red.shade300 : Colors.red,
+                color: Theme.of(context).colorScheme.error,
               ),
             ),
           ),
@@ -533,31 +513,35 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
             icon: Icon(
               Icons.close,
               size: 20,
-              color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             onPressed: reportController.clearError,
           ),
         ],
       ),
     );
+      },
+    );
   }
 
-  Future<void> _submitReport(ReportController reportController, AuthController authController) async {
+  Future<void> _submitReport(ReportController reportController) async {
     if (_linkController.text.trim().isEmpty) {
-      _showSnackBar('يرجى إدخال الرابط المشبوه', Colors.red);
+      showSnackBar('يرجى إدخال الرابط المشبوه', Theme.of(context).colorScheme.error);
       return;
     }
 
     if (_selectedCategory == null) {
-      _showSnackBar('يرجى اختيار نوع التهديد', Colors.red);
+      showSnackBar('يرجى اختيار نوع التهديد', Theme.of(context).colorScheme.error);
       return;
     }
 
     // التحقق من صحة الرابط
     if (!_isValidUrl(_linkController.text)) {
-      _showSnackBar('الرابط غير صحيح', Colors.red);
+      showSnackBar('الرابط غير صحيح', Theme.of(context).colorScheme.error);
       return;
     }
+
+    final authController = context.read<AuthController>();
 
     final report = ReportModel(
       id: '',
@@ -573,8 +557,8 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     final success = await reportController.submitReport(report);
 
     if (success && mounted) {
-      _showSuccessDialog(reportController, report);
-      _clearForm();
+      showSuccessDialog(reportController, report);
+      clearForm();
     }
   }
 
@@ -584,7 +568,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     return regex.hasMatch(url);
   }
 
-  void _clearForm() {
+  void clearForm() {
     _linkController.clear();
     _descriptionController.clear();
     setState(() {
@@ -593,7 +577,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     });
   }
 
-  void _showSnackBar(String message, Color color) {
+  void showSnackBar(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -604,18 +588,17 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     );
   }
 
-  void _showSuccessDialog(ReportController reportController, ReportModel report) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+  void showSuccessDialog(ReportController reportController, ReportModel report) {
     final trackingNumber = reportController.reports.first.trackingNumber ?? 'غير متوفر';
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: isDarkMode ? const Color(0xFF2A2A3A) : Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(
           'تم استلام البلاغ',
           style: TextStyle(
-            color: isDarkMode ? Colors.white : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         content: Column(
@@ -624,12 +607,12 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.1),
+                color: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.check_circle,
-                color: Colors.green,
+                color: Theme.of(context).colorScheme.tertiary,
                 size: 60,
               ),
             ),
@@ -639,14 +622,14 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
-                color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade100,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -655,7 +638,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
                     'رقم تتبع البلاغ:',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -663,7 +646,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
                     trackingNumber,
                     style: TextStyle(
                       fontSize: 18,
-                      color: isDarkMode ? Colors.orange.shade300 : const Color(0xFF0A4779),
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -678,7 +661,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
             child: Text(
               'إغلاق',
               style: TextStyle(
-                color: isDarkMode ? Colors.grey.shade400 : Colors.grey.shade700,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -687,8 +670,8 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
             icon: const Icon(Icons.share),
             label: const Text('مشاركة'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: isDarkMode ? Colors.orange.shade700 : const Color(0xFF0A4779),
-              foregroundColor: Colors.white,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
             ),
           ),
         ],
@@ -696,7 +679,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     );
   }
 
-  void _showReportsHistory(BuildContext context) {
+  void showReportsHistory(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('سيتم إضافة سجل البلاغات قريباً'),
@@ -705,23 +688,21 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
     );
   }
 
-  void _showInfoDialog(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+  void showInfoDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: isDarkMode ? const Color(0xFF2A2A3A) : Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(
           'معلومات الإبلاغ',
           style: TextStyle(
-            color: isDarkMode ? Colors.white : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         content: Text(
           'الإبلاغ عن الروابط الضارة يساعد في حماية المجتمع الرقمي. يتم مراجعة جميع البلاغات من قبل فريق متخصص. يمكنك متابعة حالة بلاغك باستخدام رقم التتبع.',
           style: TextStyle(
-            color: isDarkMode ? Colors.grey.shade300 : Colors.black87,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         actions: [
@@ -730,7 +711,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
             child: Text(
               'حسناً',
               style: TextStyle(
-                color: isDarkMode ? Colors.orange.shade300 : const Color(0xFF0A4779),
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
           ),

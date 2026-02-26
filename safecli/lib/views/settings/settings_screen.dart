@@ -1,19 +1,23 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/settings_controller.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final settingsController = context.watch<SettingsController>();
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
 
+class _SettingsScreenState extends State<SettingsScreen> {
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-     
-      body: settingsController.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
+      body: Consumer<SettingsController>(
+        builder: (context, settingsController, child) {
+          return settingsController.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : ListView(
               padding: const EdgeInsets.all(16),
               children: [
                 _buildHeader(),
@@ -30,7 +34,9 @@ class SettingsScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 _buildDangerZone(context, settingsController),
               ],
-            ),
+            );
+        },
+      ),
     );
   }
 
@@ -38,14 +44,14 @@ class SettingsScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF0A4779), Color(0xFF4D82B8)],
+        gradient: LinearGradient(
+          colors: [Theme.of(context).colorScheme.tertiary, Theme.of(context).colorScheme.tertiaryContainer],
         ),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.settings, color: Colors.white, size: 30),
+          Icon(Icons.settings, color: Theme.of(context).colorScheme.onTertiary, size: 30),
           SizedBox(width: 15),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,14 +59,14 @@ class SettingsScreen extends StatelessWidget {
               Text(
                 'الإعدادات',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onTertiary,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
                 'خصص التطبيق حسب احتياجاتك',
-                style: TextStyle(color: Colors.white70, fontSize: 12),
+                style: TextStyle(color: Theme.of(context).colorScheme.onTertiary.withValues(alpha: 0.7), fontSize: 12),
               ),
             ],
           ),
@@ -175,31 +181,31 @@ class SettingsScreen extends StatelessWidget {
         _buildActionTile(
           title: 'تقييم التطبيق',
           icon: Icons.star,
-          iconColor: Colors.amber,
+          iconColor: Theme.of(context).colorScheme.primary,
           onTap: () {},
         ),
         _buildActionTile(
           title: 'مشاركة التطبيق',
           icon: Icons.share,
-          iconColor: Colors.green,
+          iconColor: Theme.of(context).colorScheme.secondary,
           onTap: () {},
         ),
         _buildActionTile(
           title: 'سياسة الخصوصية',
           icon: Icons.privacy_tip,
-          iconColor: Colors.blue,
+          iconColor: Theme.of(context).colorScheme.tertiary,
           onTap: () {},
         ),
         _buildActionTile(
           title: 'الشروط والأحكام',
           icon: Icons.description,
-          iconColor: Colors.purple,
+          iconColor: Theme.of(context).colorScheme.primary,
           onTap: () {},
         ),
         _buildActionTile(
           title: 'الدعم الفني',
           icon: Icons.contact_support,
-          iconColor: Colors.orange,
+          iconColor: Theme.of(context).colorScheme.secondary,
           onTap: () {},
         ),
       ],
@@ -209,9 +215,9 @@ class SettingsScreen extends StatelessWidget {
   Widget _buildDangerZone(BuildContext context, SettingsController controller) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.red.withOpacity(0.05),
+        color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.red.withOpacity(0.3)),
+        border: Border.all(color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -219,25 +225,25 @@ class SettingsScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(Icons.warning, color: Colors.red.shade700),
+                Icon(Icons.warning, color: Theme.of(context).colorScheme.error),
                 const SizedBox(width: 8),
                 Text(
                   'منطقة الخطر',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.red.shade700,
+                    color: Theme.of(context).colorScheme.error,
                   ),
                 ),
               ],
             ),
           ),
-          const Divider(height: 1, color: Colors.red),
+          Divider(height: 1, color: Theme.of(context).colorScheme.error),
           ListTile(
-            leading: const Icon(Icons.restore, color: Colors.red),
-            title: const Text(
+            leading: Icon(Icons.restore, color: Theme.of(context).colorScheme.error),
+            title: Text(
               'إعادة ضبط الإعدادات',
-              style: TextStyle(color: Colors.red),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
             subtitle: const Text('إعادة جميع الإعدادات إلى الوضع الافتراضي'),
             onTap: () => _showResetDialog(context, controller),
@@ -265,10 +271,10 @@ class SettingsScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0A4779).withOpacity(0.1),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, color: const Color(0xFF0A4779), size: 20),
+                  child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
                 ),
                 const SizedBox(width: 10),
                 Text(
@@ -303,12 +309,12 @@ class SettingsScreen extends StatelessWidget {
       secondary: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFF0A4779).withOpacity(0.1),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: const Color(0xFF0A4779), size: 20),
+        child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
       ),
-      activeColor: const Color(0xFF0A4779),
+      activeThumbColor: Theme.of(context).colorScheme.primary,
     );
   }
 
@@ -317,10 +323,10 @@ class SettingsScreen extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFF0A4779).withOpacity(0.1),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
-        child: const Icon(Icons.language, color: Color(0xFF0A4779)),
+        child: Icon(Icons.language, color: Theme.of(context).colorScheme.primary),
       ),
       title: const Text('اللغة'),
       subtitle: Text(controller.settings.language == 'ar' ? 'العربية' : 'English'),
@@ -351,10 +357,10 @@ class SettingsScreen extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFF0A4779).withOpacity(0.1),
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
-        child: const Icon(Icons.speed, color: Color(0xFF0A4779)),
+        child: Icon(Icons.speed, color: Theme.of(context).colorScheme.primary),
       ),
       title: const Text('مستوى الفحص'),
       subtitle: Text(levelNames[controller.settings.scanLevel] ?? 'قياسي'),
@@ -400,7 +406,7 @@ class SettingsScreen extends StatelessWidget {
           min: min,
           max: max,
           divisions: divisions,
-          activeColor: const Color(0xFF0A4779),
+          activeColor: Theme.of(context).colorScheme.primary,
           onChanged: onChanged,
         ),
       ],
@@ -416,15 +422,15 @@ class SettingsScreen extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.grey.withOpacity(0.1),
+          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: Colors.grey, size: 20),
+        child: Icon(icon, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
       ),
       title: Text(title),
       trailing: Text(
         value,
-        style: const TextStyle(color: Colors.grey),
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
     );
   }
@@ -439,7 +445,7 @@ class SettingsScreen extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: iconColor.withOpacity(0.1),
+          color: iconColor.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: iconColor, size: 20),
@@ -468,16 +474,16 @@ class SettingsScreen extends StatelessWidget {
               controller.resetToDefaults();
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('تم إعادة ضبط الإعدادات'),
-                  backgroundColor: Colors.green,
+                SnackBar(
+                content: const Text('تم إعادة ضبط الإعدادات'),
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
                   behavior: SnackBarBehavior.floating,
                 ),
               );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+              foregroundColor: Theme.of(context).colorScheme.onError,
             ),
             child: const Text('إعادة الضبط'),
           ),

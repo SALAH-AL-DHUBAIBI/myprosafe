@@ -1,4 +1,5 @@
-import 'dart:convert';
+﻿import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,7 +36,7 @@ class LocalStorageService {
       // حفظ كمستخدم حالي
       await prefs.setString('current_user', jsonEncode(user.toJson()));
     } catch (e) {
-      print('خطأ في حفظ المستخدم: $e');
+      debugPrint('خطأ في حفظ المستخدم: $e');
       rethrow;
     }
   }
@@ -65,7 +66,7 @@ class LocalStorageService {
       
       return null;
     } catch (e) {
-      print('خطأ في جلب المستخدم: $e');
+      debugPrint('خطأ في جلب المستخدم: $e');
       return null;
     }
   }
@@ -86,7 +87,7 @@ class LocalStorageService {
       await image.copy(newPath);
       return newPath;
     } catch (e) {
-      print('خطأ في حفظ الصورة: $e');
+      debugPrint('خطأ في حفظ الصورة: $e');
       rethrow;
     }
   }
@@ -98,7 +99,7 @@ class LocalStorageService {
       final historyJson = history.map((e) => jsonEncode(e.toJson())).toList();
       await prefs.setStringList(_scanHistoryKey, historyJson);
     } catch (e) {
-      print('خطأ في حفظ السجل: $e');
+      debugPrint('خطأ في حفظ السجل: $e');
       rethrow;
     }
   }
@@ -113,7 +114,7 @@ class LocalStorageService {
           .map((json) => ScanResult.fromJson(jsonDecode(json)))
           .toList();
     } catch (e) {
-      print('خطأ في جلب السجل: $e');
+      debugPrint('خطأ في جلب السجل: $e');
       return [];
     }
   }
@@ -125,7 +126,7 @@ class LocalStorageService {
       final reportsJson = reports.map((e) => jsonEncode(e.toJson())).toList();
       await prefs.setStringList(_reportsKey, reportsJson);
     } catch (e) {
-      print('خطأ في حفظ البلاغات: $e');
+      debugPrint('خطأ في حفظ البلاغات: $e');
       rethrow;
     }
   }
@@ -140,7 +141,7 @@ class LocalStorageService {
           .map((json) => ReportModel.fromJson(jsonDecode(json)))
           .toList();
     } catch (e) {
-      print('خطأ في جلب البلاغات: $e');
+      debugPrint('خطأ في جلب البلاغات: $e');
       return [];
     }
   }
@@ -151,7 +152,7 @@ class LocalStorageService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.clear();
     } catch (e) {
-      print('خطأ في مسح البيانات: $e');
+      debugPrint('خطأ في مسح البيانات: $e');
       rethrow;
     }
   }

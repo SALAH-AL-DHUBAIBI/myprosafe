@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/scan_controller.dart';
 import 'controllers/settings_controller.dart';
@@ -10,6 +9,7 @@ import 'services/notification_service.dart';
 import 'views/splash_screen.dart';
 import 'views/auth/login_screen.dart';
 import 'views/main/home_screen.dart';
+import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,57 +38,20 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: 'SafeClik',
             debugShowCheckedModeBanner: false,
-            theme: _buildTheme(settingsController.settings.darkMode),
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: settingsController.settings.darkMode ? ThemeMode.dark : ThemeMode.light,
             home: Consumer<AuthController>(
               builder: (context, authController, child) {
                 if (authController.isLoading) {
                   return const SplashScreen();
                 }
-                
-                if (authController.isAuthenticated) {
-                  return const HomeScreen();
-                }
-                
-                return const LoginScreen();
+                return authController.isAuthenticated ? const HomeScreen() : const LoginScreen();
               },
             ),
             routes: _buildRoutes(),
           );
         },
-      ),
-    );
-  }
-
-  ThemeData _buildTheme(bool isDarkMode) {
-    if (isDarkMode) {
-      return ThemeData.dark().copyWith(
-        primaryColor: const Color(0xFF0A4779),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF0A4779),
-          foregroundColor: Colors.white,
-          elevation: 0,
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0A4779),
-            foregroundColor: Colors.white,
-          ),
-        ),
-      );
-    }
-    
-    return ThemeData.light().copyWith(
-      primaryColor: const Color(0xFF0A4779),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF0A4779),
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF0A4779),
-          foregroundColor: Colors.white,
-        ),
       ),
     );
   }

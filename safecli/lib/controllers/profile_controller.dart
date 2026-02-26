@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/user_model.dart';
@@ -13,9 +13,7 @@ class ProfileController extends ChangeNotifier {
   final ImagePicker _imagePicker = ImagePicker();
 
   UserModel get user {
-    if (_user == null) {
-      // مستخدم افتراضي للاختبار
-      _user = UserModel(
+    _user ??= UserModel(
         id: 'user_123',
         name: 'أحمد محمد',
         email: 'ahmed@example.com',
@@ -25,7 +23,6 @@ class ProfileController extends ChangeNotifier {
         accuracyRate: 98.5,
         isEmailVerified: true,
       );
-    }
     return _user!;
   }
 

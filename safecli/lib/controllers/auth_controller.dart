@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
-import '../services/api_service.dart';
 import '../services/local_storage_service.dart';
 
 class AuthController extends ChangeNotifier {
@@ -10,7 +9,6 @@ class AuthController extends ChangeNotifier {
   String? _error;
   bool _isAuthenticated = false;
 
-  final ApiService _apiService = ApiService();
   final LocalStorageService _storageService = LocalStorageService();
 
   UserModel? get currentUser => _currentUser;
@@ -27,6 +25,8 @@ class AuthController extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
+      final startTime = DateTime.now();
+
       final prefs = await SharedPreferences.getInstance();
       final userId = prefs.getString('userId');
       final token = prefs.getString('authToken');
@@ -36,6 +36,12 @@ class AuthController extends ChangeNotifier {
         _isAuthenticated = true;
         // تحميل بيانات المستخدم
         await loadUserData(userId);
+      }
+
+      final elapsed = DateTime.now().difference(startTime);
+      const minDuration = Duration(milliseconds: 2500);
+      if (elapsed < minDuration) {
+        await Future.delayed(minDuration - elapsed);
       }
     } catch (e) {
       _error = 'خطأ في تحميل بيانات المستخدم';

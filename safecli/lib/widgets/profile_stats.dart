@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 class ProfileStats extends StatelessWidget {
   final int scannedLinks;
@@ -25,37 +25,42 @@ class ProfileStats extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildStatItem(
+                  context: context,
                   icon: Icons.link,
                   label: 'تم الفحص',
                   value: scannedLinks.toString(),
-                  color: Colors.blue,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 _buildStatItem(
+                  context: context,
                   icon: Icons.warning,
                   label: 'تهديدات',
                   value: detectedThreats.toString(),
-                  color: Colors.red,
+                  color: Theme.of(context).colorScheme.error,
                 ),
                 _buildStatItem(
+                  context: context,
                   icon: Icons.analytics,
                   label: 'الدقة',
                   value: '${accuracyRate.toStringAsFixed(1)}%',
-                  color: Colors.green,
+                  color: Theme.of(context).colorScheme.primary, // Keep green for success, or map to a custom valid indicator if required, but Colors.green is semantic. We'll leave it semantic. Wait, let's use secondary or primary to be strict. I'll use Colors.green inside the strict definition but we can map it. Actually, I'll pass Theme.of(context).colorScheme.primary
                 ),
               ],
             ),
             const SizedBox(height: 20),
             LinearProgressIndicator(
               value: accuracyRate / 100,
-              backgroundColor: Colors.grey[300],
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
               minHeight: 8,
               borderRadius: BorderRadius.circular(4),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'معدل الدقة في الكشف',
-              style: TextStyle(color: Colors.grey, fontSize: 12),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
@@ -64,6 +69,7 @@ class ProfileStats extends StatelessWidget {
   }
 
   Widget _buildStatItem({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required String value,
@@ -83,7 +89,7 @@ class ProfileStats extends StatelessWidget {
         ),
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: Colors.grey),
+          style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
       ],
     );

@@ -1,10 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:safeclik/views/report/report_screen.dart';
-import 'package:safeclik/views/scan/history_screen.dart';
 import '../../controllers/scan_controller.dart';
 import '../../controllers/settings_controller.dart';
-import '../../models/scan_result.dart';
 import '../../widgets/stats_card.dart';
 import '../scan/result_screen.dart';
 
@@ -45,9 +42,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final scanController = context.watch<ScanController>();
-    final settingsController = context.watch<SettingsController>();
-
     return Scaffold(
       body: FadeTransition(
         opacity: _fadeAnimation,
@@ -57,13 +51,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             children: [
               _buildHeader(),
               const SizedBox(height: 30),
-              _buildScanCard(scanController, settingsController),
+              _buildScanCard(),
               const SizedBox(height: 20),
-              if (scanController.lastError != null) _buildErrorWidget(scanController),
+              _buildErrorWidget(),
               const SizedBox(height: 30),
               _buildQuickActions(),
               const SizedBox(height: 30),
-              _buildStats(scanController),
+              _buildStats(),
             ],
           ),
         ),
@@ -76,18 +70,18 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF0A4779),
-            Color(0xFF4D82B8),
+            Theme.of(context).colorScheme.tertiary,
+            Theme.of(context).colorScheme.tertiaryContainer,
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0A4779).withOpacity(0.3),
+            color: Theme.of(context).shadowColor,
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -98,22 +92,22 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Theme.of(context).colorScheme.onTertiary.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.security_rounded,
               size: 40,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onTertiary,
             ),
           ),
           const SizedBox(height: 10),
-          const Text(
+          Text(
             'Safe Clik',
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onTertiary,
             ),
           ),
           const SizedBox(height: 5),
@@ -121,7 +115,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             'حماية ذكية من الروابط الضارة والتصيد الإلكتروني',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.white.withOpacity(0.9),
+              color: Theme.of(context).colorScheme.onTertiary.withValues(alpha: 0.9),
             ),
             textAlign: TextAlign.center,
           ),
@@ -130,9 +124,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildScanCard(ScanController scanController, SettingsController settingsController) {
-    return Card(
-      elevation: 3,
+  Widget _buildScanCard() {
+    return Consumer2<ScanController, SettingsController>(
+      builder: (context, scanController, settingsController, child) {
+        return Card(
+          elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -144,12 +140,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0A4779).withOpacity(0.1),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.search,
-                    color: Color(0xFF0A4779),
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -174,13 +170,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
+                  borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFF0A4779), width: 2),
+                  borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
                 ),
-                prefixIcon: const Icon(Icons.link, color: Color(0xFF0A4779)),
+                prefixIcon: Icon(Icons.link, color: Theme.of(context).colorScheme.primary),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.clear),
                   onPressed: () => _linkController.clear(),
@@ -198,22 +194,23 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                         : () => _performScan(context, scanController),
                     icon: const Icon(Icons.search),
                     label: scanController.isScanning
-                        ? const SizedBox(
+                        ? SizedBox(
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onPrimary),
                             ),
                           )
                         : const Text('فحص الرابط'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0A4779),
-                      foregroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
+                      elevation: 3,
                     ),
                   ),
                 ),
@@ -244,24 +241,29 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         ),
       ),
     );
+      },
+    );
   }
 
-  Widget _buildErrorWidget(ScanController scanController) {
-    return Container(
-      padding: const EdgeInsets.all(12),
+  Widget _buildErrorWidget() {
+    return Consumer<ScanController>(
+      builder: (context, scanController, child) {
+        if (scanController.lastError == null) return const SizedBox.shrink();
+        return Container(
+          padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.red.withOpacity(0.1),
+        color: Theme.of(context).colorScheme.errorContainer,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.red.withOpacity(0.3)),
+        border: Border.all(color: Theme.of(context).colorScheme.error),
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: Colors.red),
+          Icon(Icons.error_outline, color: Theme.of(context).colorScheme.onErrorContainer),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               scanController.lastError!,
-              style: const TextStyle(color: Colors.red),
+              style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
             ),
           ),
           IconButton(
@@ -270,6 +272,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           ),
         ],
       ),
+        );
+      },
     );
   }
 
@@ -290,7 +294,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             _buildQuickActionButton(
               icon: Icons.history,
               label: 'السجل',
-              color: Colors.blue,
+              color: Theme.of(context).colorScheme.primary,
               onTap: () {
                 // Navigator.push(
                 //  context,
@@ -302,7 +306,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             _buildQuickActionButton(
               icon: Icons.report,
               label: 'الإبلاغ',
-              color: Colors.orange,
+              color: Theme.of(context).colorScheme.secondary,
               onTap: () {
                 // Navigator.push(
                 //  context,
@@ -314,9 +318,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             _buildQuickActionButton(
               icon: Icons.share,
               label: 'مشاركة',
-              color: Colors.green,
+              color: Theme.of(context).colorScheme.tertiary,
               onTap: () {
-                _shareApp();
+                shareApp();
               },
             ),
           ],
@@ -337,9 +341,9 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withOpacity(0.3)),
+            border: Border.all(color: color.withValues(alpha: 0.3)),
           ),
           child: Column(
             children: [
@@ -356,22 +360,26 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildStats(ScanController scanController) {
-    final stats = scanController.getStats();
-    
-    return StatsCard(
+  Widget _buildStats() {
+    return Consumer<ScanController>(
+      builder: (context, scanController, child) {
+        final stats = scanController.getStats();
+        
+        return StatsCard(
       scannedCount: stats['total'].toString(),
       maliciousCount: stats['dangerous'].toString(),
-      blockedCount: stats['dangerous'].toString(),
+          blockedCount: stats['dangerous'].toString(),
+        );
+      },
     );
   }
 
   Future<void> _performScan(BuildContext context, ScanController scanController) async {
     if (_linkController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('يرجى إدخال رابط لفحصه'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          content: const Text('يرجى إدخال رابط لفحصه'),
+          backgroundColor: Theme.of(context).colorScheme.error,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -380,7 +388,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
     final result = await scanController.scanLink(_linkController.text.trim());
     
-    if (result != null && mounted) {
+    if (!context.mounted) return;
+    if (result != null) {
       _linkController.clear();
       _linkFocusNode.unfocus();
       
@@ -393,7 +402,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     }
   }
 
-  void _shareApp() {
+  void shareApp() {
     // يمكن إضافة مكتبة مشاركة
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(

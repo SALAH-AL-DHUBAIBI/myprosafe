@@ -1,7 +1,4 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../models/scan_result.dart';
-import '../models/report_model.dart';
+﻿import '../models/report_model.dart';
 
 class ApiService {
   static const String baseUrl = 'https://api.safeclik.com/v1';
@@ -24,7 +21,7 @@ class ApiService {
         'message': isSafe ? 'الرابط آمن' : 'الرابط خطير',
         'details': _generateDetails(isSafe, score),
         'threatsCount': isSafe ? 0 : 2 + (random % 5),
-        'ipAddress': '192.168.1.${random}',
+        'ipAddress': '192.168.1.$random',
         'domain': Uri.parse(url).host,
         'responseTime': 0.5 + (random % 10) / 10,
       };

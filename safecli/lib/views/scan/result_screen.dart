@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../models/scan_result.dart';
 
@@ -9,14 +9,16 @@ class ResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Color itemColor = scanResult.safe == true ? Theme.of(context).colorScheme.tertiary : scanResult.safe == false ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.secondary;
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('نتيجة الفحص'),
           centerTitle: true,
-          backgroundColor: scanResult.safetyColor,
-          foregroundColor: Colors.white,
+          backgroundColor: itemColor,
+          foregroundColor: Theme.of(context).colorScheme.surface,
           actions: [
             IconButton(
               icon: const Icon(Icons.share),
@@ -28,17 +30,17 @@ class ResultScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              _buildResultHeader(),
+              _buildResultHeader(context, itemColor),
               const SizedBox(height: 20),
-              _buildLinkCard(),
+              _buildLinkCard(context),
               const SizedBox(height: 20),
-              _buildScoreCard(),
+              _buildScoreCard(context, itemColor),
               const SizedBox(height: 20),
-              _buildDetailsCard(),
+              _buildDetailsCard(context),
               const SizedBox(height: 20),
-              _buildTechnicalInfo(),
+              _buildTechnicalInfo(context),
               const SizedBox(height: 30),
-              _buildActionButtons(context),
+              _buildActionButtons(context, itemColor),
             ],
           ),
         ),
@@ -46,10 +48,10 @@ class ResultScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildResultHeader() {
+  Widget _buildResultHeader(BuildContext context, Color itemColor) {
     IconData icon;
     String statusText;
-    Color color = scanResult.safetyColor;
+    Color color = itemColor;
 
     if (scanResult.safe == true) {
       icon = Icons.check_circle_outline;
@@ -65,9 +67,9 @@ class ResultScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -77,7 +79,7 @@ class ResultScreen extends StatelessWidget {
               color: color,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: Colors.white, size: 30),
+            child: Icon(icon, color: Theme.of(context).colorScheme.surface, size: 30),
           ),
           const SizedBox(width: 15),
           Expanded(
@@ -95,7 +97,7 @@ class ResultScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   scanResult.message,
-                  style: TextStyle(color: Colors.grey.shade700),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               ],
             ),
@@ -105,7 +107,7 @@ class ResultScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLinkCard() {
+  Widget _buildLinkCard(BuildContext context) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -116,7 +118,7 @@ class ResultScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.link, color: Color(0xFF0A4779), size: 20),
+                Icon(Icons.link, color: Theme.of(context).colorScheme.primary, size: 20),
                 const SizedBox(width: 8),
                 const Text(
                   'الرابط المفحوص',
@@ -128,13 +130,13 @@ class ResultScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.grey.shade50,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(color: Theme.of(context).colorScheme.outline),
               ),
               child: SelectableText(
                 scanResult.link,
-                style: const TextStyle(fontSize: 14, color: Color(0xFF0A4779)),
+                style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.primary),
               ),
             ),
             const SizedBox(height: 10),
@@ -143,17 +145,17 @@ class ResultScreen extends StatelessWidget {
               children: [
                 Text(
                   'تاريخ الفحص: ${_formatDate(scanResult.timestamp)}',
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 12),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     'ID: ${scanResult.id.substring(0, 8)}...',
-                    style: const TextStyle(fontSize: 10, color: Colors.grey),
+                    style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)),
                   ),
                 ),
               ],
@@ -164,7 +166,7 @@ class ResultScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildScoreCard() {
+  Widget _buildScoreCard(BuildContext context, Color itemColor) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -184,7 +186,7 @@ class ResultScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: scanResult.safetyColor,
+                    color: itemColor,
                   ),
                 ),
               ],
@@ -195,7 +197,7 @@ class ResultScreen extends StatelessWidget {
                 Container(
                   height: 20,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -206,8 +208,8 @@ class ResultScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          scanResult.safetyColor.withOpacity(0.7),
-                          scanResult.safetyColor,
+                          itemColor.withValues(alpha: 0.7),
+                          itemColor,
                         ],
                       ),
                       borderRadius: BorderRadius.circular(10),
@@ -220,9 +222,9 @@ class ResultScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildScoreIndicator('آمن', scanResult.safe == true),
-                _buildScoreIndicator('مشبوه', scanResult.safe == null),
-                _buildScoreIndicator('خطير', scanResult.safe == false),
+                _buildScoreIndicator(context, 'آمن', scanResult.safe == true),
+                _buildScoreIndicator(context, 'مشبوه', scanResult.safe == null),
+                _buildScoreIndicator(context, 'خطير', scanResult.safe == false),
               ],
             ),
           ],
@@ -231,9 +233,9 @@ class ResultScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildScoreIndicator(String label, bool isActive) {
-    Color color = label == 'آمن' ? Colors.green : 
-                  label == 'خطير' ? Colors.red : Colors.orange;
+  Widget _buildScoreIndicator(BuildContext context, String label, bool isActive) {
+    Color color = label == 'آمن' ? Theme.of(context).colorScheme.tertiary : 
+                  label == 'خطير' ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.secondary;
     
     return Column(
       children: [
@@ -241,7 +243,7 @@ class ResultScreen extends StatelessWidget {
           width: 12,
           height: 12,
           decoration: BoxDecoration(
-            color: isActive ? color : Colors.grey.shade300,
+            color: isActive ? color : Theme.of(context).colorScheme.surfaceContainerHighest,
             shape: BoxShape.circle,
           ),
         ),
@@ -250,7 +252,7 @@ class ResultScreen extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: isActive ? color : Colors.grey,
+            color: isActive ? color : Theme.of(context).colorScheme.onSurfaceVariant,
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -258,7 +260,7 @@ class ResultScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailsCard() {
+  Widget _buildDetailsCard(BuildContext context) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -269,7 +271,7 @@ class ResultScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.info_outline, color: Color(0xFF0A4779)),
+                Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 8),
                 const Text(
                   'تفاصيل الفحص',
@@ -287,8 +289,8 @@ class ResultScreen extends StatelessWidget {
                         detail.startsWith('✓') ? Icons.check_circle : 
                         detail.startsWith('⚠') ? Icons.warning : Icons.circle,
                         size: 16,
-                        color: detail.startsWith('✓') ? Colors.green :
-                               detail.startsWith('⚠') ? Colors.orange : Colors.grey,
+                        color: detail.startsWith('✓') ? Theme.of(context).colorScheme.tertiary :
+                               detail.startsWith('⚠') ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -306,7 +308,7 @@ class ResultScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTechnicalInfo() {
+  Widget _buildTechnicalInfo(BuildContext context) {
     if (scanResult.ipAddress == null && scanResult.domain == null) {
       return const SizedBox.shrink();
     }
@@ -321,7 +323,7 @@ class ResultScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.dns, color: Color(0xFF0A4779)),
+                Icon(Icons.dns, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 8),
                 const Text(
                   'معلومات تقنية',
@@ -331,27 +333,27 @@ class ResultScreen extends StatelessWidget {
             ),
             const SizedBox(height: 15),
             if (scanResult.domain != null)
-              _buildInfoRow('النطاق:', scanResult.domain!),
+              _buildInfoRow(context, 'النطاق:', scanResult.domain!),
             if (scanResult.ipAddress != null)
-              _buildInfoRow('عنوان IP:', scanResult.ipAddress!),
+              _buildInfoRow(context, 'عنوان IP:', scanResult.ipAddress!),
             if (scanResult.responseTime > 0)
-              _buildInfoRow('زمن الاستجابة:', '${scanResult.responseTime.toStringAsFixed(2)} ثانية'),
+              _buildInfoRow(context, 'زمن الاستجابة:', '${scanResult.responseTime.toStringAsFixed(2)} ثانية'),
             if (scanResult.threatsCount != null)
-              _buildInfoRow('عدد التهديدات:', scanResult.threatsCount.toString()),
+              _buildInfoRow(context, 'عدد التهديدات:', scanResult.threatsCount.toString()),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(BuildContext context, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           Text(
             label,
-            style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.grey),
+            style: TextStyle(fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           const SizedBox(width: 8),
           Text(
@@ -363,7 +365,7 @@ class ResultScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
+  Widget _buildActionButtons(BuildContext context, Color itemColor) {
     return Row(
       children: [
         Expanded(
@@ -372,8 +374,8 @@ class ResultScreen extends StatelessWidget {
             icon: const Icon(Icons.open_in_browser),
             label: const Text('فتح الرابط'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: scanResult.safetyColor,
-              foregroundColor: Colors.white,
+              backgroundColor: itemColor,
+              foregroundColor: Theme.of(context).colorScheme.surface,
               padding: const EdgeInsets.symmetric(vertical: 15),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -392,7 +394,7 @@ class ResultScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              side: BorderSide(color: Colors.grey.shade400),
+              side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
             ),
           ),
         ),
@@ -417,7 +419,8 @@ class ResultScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () => Navigator.pop(context, true),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+                backgroundColor: Theme.of(context).colorScheme.error,
+                foregroundColor: Theme.of(context).colorScheme.onError,
               ),
               child: const Text('فتح على مسؤوليتي'),
             ),
@@ -434,9 +437,9 @@ class ResultScreen extends StatelessWidget {
       } else {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('لا يمكن فتح هذا الرابط'),
-              backgroundColor: Colors.red,
+            SnackBar(
+              content: const Text('لا يمكن فتح هذا الرابط'),
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -446,7 +449,7 @@ class ResultScreen extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('خطأ: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -454,15 +457,15 @@ class ResultScreen extends StatelessWidget {
   }
 
   void _shareResult(BuildContext context) {
-    String message = '''
-نتيجة فحص الرابط:
-${scanResult.link}
-
-الحالة: ${scanResult.safetyStatus}
-نسبة الأمان: ${scanResult.score}%
-التفاصيل: ${scanResult.details.join('\n')}
-تاريخ الفحص: ${_formatDate(scanResult.timestamp)}
-    ''';
+    // String message = '''
+    // نتيجة فحص الرابط:
+    // ${scanResult.link}
+    // 
+    // الحالة: ${scanResult.safetyStatus}
+    // نسبة الأمان: ${scanResult.score}%
+    // التفاصيل: ${scanResult.details.join('\n')}
+    // تاريخ الفحص: ${_formatDate(scanResult.timestamp)}
+    // ''';
 
     // يمكن إضافة مكتبة مشاركة هنا
     ScaffoldMessenger.of(context).showSnackBar(

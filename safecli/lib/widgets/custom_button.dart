@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -30,19 +30,16 @@ class CustomButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: color ?? Theme.of(context).primaryColor,
-          foregroundColor: textColor ?? Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          backgroundColor: color ?? Theme.of(context).colorScheme.primary,
+          foregroundColor: textColor ?? Theme.of(context).colorScheme.onPrimary,
         ),
         child: isLoading
-            ? const SizedBox(
+            ? SizedBox(
                 height: 20,
                 width: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onPrimary),
                 ),
               )
             : Row(

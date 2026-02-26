@@ -1,4 +1,4 @@
-class ReportModel {
+﻿class ReportModel {
   final String id;
   final String link;
   final String category;

@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Text(
           'مرحباً بك مجدداً',
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            color: Theme.of(context).colorScheme.primary,
+            color: Theme.of(context).colorScheme.onTertiary.withValues(alpha: 0.8),
           ),
         ),
         const SizedBox(height: 5),

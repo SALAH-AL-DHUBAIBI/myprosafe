@@ -127,7 +127,7 @@ class _ReportScreenState extends State<ReportScreen> with SingleTickerProviderSt
           const SizedBox(width: 15),
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
                   'ساعد في حماية المجتمع',

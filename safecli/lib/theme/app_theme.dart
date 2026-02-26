@@ -4,13 +4,13 @@ class AppTheme {
   // Light Theme Configuration
   static ThemeData get lightTheme {
     final colorScheme = const ColorScheme.light(
-      primary: Color(0xFF0D47A1), // Strong Blue
+      primary: Color.fromARGB(255, 29, 103, 163), // Strong Blue
       primaryContainer: Color(0xFF1976D2),
-      secondary: Color(0xFF1565C0), // Balanced Blue
+      secondary: Color(0xFF42A5F5), // Balanced Blue
       secondaryContainer: Color(0xFFE3F2FD),
       surface: Colors.white,
       error: Color(0xFFD32F2F),
-      tertiary: Color(0xFF1E88E5), // Accent Blue 
+      tertiary: Color(0xFF0A4779), // Accent Blue 
       tertiaryContainer: Color(0xFF90CAF9),
       surfaceContainerHighest: Color(0xFFF5F7FA),
       onPrimary: Colors.white,
@@ -27,16 +27,16 @@ class AppTheme {
   // Dark Theme Configuration
   static ThemeData get darkTheme {
     final colorScheme = const ColorScheme.dark(
-      primary: Color(0xFF64B5F6), // Soft Accessible Blue
+      primary: Color.fromARGB(255, 29, 103, 163), // Soft Accessible Blue
       primaryContainer: Color(0xFF1976D2),
       secondary: Color(0xFF42A5F5), // Balanced Blue
       secondaryContainer: Color(0xFF0D47A1),
       surface: Color(0xFF101B2B), // Deep Navy
       error: Color(0xFFEF5350),
-      tertiary: Color(0xFF1E88E5), 
+      tertiary: Color(0xFF0A4779), 
       tertiaryContainer: Color(0xFF0A2440), 
       surfaceContainerHighest: Color(0xFF1A283C),
-      onPrimary: Color(0xFF0B131D),
+      onPrimary: Color.fromARGB(255, 255, 255, 255),
       onSecondary: Color(0xFF0B131D),
       onTertiary: Colors.white,
       onSurface: Color(0xFFECEFF1),

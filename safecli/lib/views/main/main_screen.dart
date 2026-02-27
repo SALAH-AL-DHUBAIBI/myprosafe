@@ -54,8 +54,8 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               _buildScanCard(),
               const SizedBox(height: 20),
               _buildErrorWidget(),
-              const SizedBox(height: 30),
-              _buildQuickActions(),
+              // const SizedBox(height: 30),
+              // _buildQuickActions(),
               const SizedBox(height: 30),
               _buildStats(),
             ],
@@ -277,57 +277,57 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildQuickActions() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(bottom: 8),
-          child: Text(
-            'إجراءات سريعة',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            _buildQuickActionButton(
-              icon: Icons.history,
-              label: 'السجل',
-              color: Theme.of(context).colorScheme.primary,
-              onTap: () {
-                // Navigator.push(
-                //  context,
-                //   MaterialPageRoute(builder: (context) => const HistoryScreen()),
-                //   );
-              },
-            ),
-            const SizedBox(width: 10),
-            _buildQuickActionButton(
-              icon: Icons.report,
-              label: 'الإبلاغ',
-              color: Theme.of(context).colorScheme.secondary,
-              onTap: () {
-                // Navigator.push(
-                //  context,
-                //   MaterialPageRoute(builder: (context) => const ReportScreen()),
-                //   );
-              },
-            ),
-            const SizedBox(width: 10),
-            _buildQuickActionButton(
-              icon: Icons.share,
-              label: 'مشاركة',
-              color: Theme.of(context).colorScheme.tertiary,
-              onTap: () {
-                shareApp();
-              },
-            ),
-          ],
-        ),
-      ],
-    );
-  }
+  // Widget _buildQuickActions() {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.center,
+  //     children: [
+  //       const Padding(
+  //         padding: EdgeInsets.only(bottom: 8),
+  //         child: Text(
+  //           'إجراءات سريعة',
+  //           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+  //         ),
+  //       ),
+  //       const SizedBox(height: 10),
+  //       Row(
+  //         children: [
+  //           _buildQuickActionButton(
+  //             icon: Icons.history,
+  //             label: 'السجل',
+  //             color: Theme.of(context).colorScheme.primary,
+  //             onTap: () {
+  //               // Navigator.push(
+  //               //  context,
+  //               //   MaterialPageRoute(builder: (context) => const HistoryScreen()),
+  //               //   );
+  //             },
+  //           ),
+  //           const SizedBox(width: 10),
+  //           _buildQuickActionButton(
+  //             icon: Icons.report,
+  //             label: 'الإبلاغ',
+  //             color: Theme.of(context).colorScheme.secondary,
+  //             onTap: () {
+  //               // Navigator.push(
+  //               //  context,
+  //               //   MaterialPageRoute(builder: (context) => const ReportScreen()),
+  //               //   );
+  //             },
+  //           ),
+  //           const SizedBox(width: 10),
+  //           _buildQuickActionButton(
+  //             icon: Icons.share,
+  //             label: 'مشاركة',
+  //             color: Theme.of(context).colorScheme.tertiary,
+  //             onTap: () {
+  //               shareApp();
+  //             },
+  //           ),
+  //         ],
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildQuickActionButton({
     required IconData icon,

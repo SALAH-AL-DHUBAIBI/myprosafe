@@ -33,7 +33,7 @@ class AppTheme {
       secondaryContainer: Color(0xFF0D47A1),
       surface: Color(0xFF101B2B), // Deep Navy
       error: Color(0xFFEF5350),
-      tertiary: Color(0xFF0A4779), 
+      tertiary: Color.fromARGB(255, 26, 123, 202), 
       tertiaryContainer: Color(0xFF0A2440), 
       surfaceContainerHighest: Color(0xFF1A283C),
       onPrimary: Color.fromARGB(255, 255, 255, 255),

@@ -18,7 +18,7 @@ class ResultScreen extends StatelessWidget {
           title: const Text('نتيجة الفحص'),
           centerTitle: true,
           backgroundColor: itemColor,
-          foregroundColor: Theme.of(context).colorScheme.surface,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
           actions: [
             IconButton(
               icon: const Icon(Icons.share),
@@ -79,7 +79,7 @@ class ResultScreen extends StatelessWidget {
               color: color,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: Theme.of(context).colorScheme.surface, size: 30),
+            child: Icon(icon, color: Theme.of(context).colorScheme.onPrimary, size: 30),
           ),
           const SizedBox(width: 15),
           Expanded(
@@ -136,7 +136,7 @@ class ResultScreen extends StatelessWidget {
               ),
               child: SelectableText(
                 scanResult.link,
-                style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.primary),
+                style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onPrimary),
               ),
             ),
             const SizedBox(height: 10),
@@ -375,7 +375,7 @@ class ResultScreen extends StatelessWidget {
             label: const Text('فتح الرابط'),
             style: ElevatedButton.styleFrom(
               backgroundColor: itemColor,
-              foregroundColor: Theme.of(context).colorScheme.surface,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
               padding: const EdgeInsets.symmetric(vertical: 15),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
